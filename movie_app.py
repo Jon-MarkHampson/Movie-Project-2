@@ -1,15 +1,31 @@
+import os
 import statistics
-import datetime
+# import datetime
 import difflib
 import random
+import requests
+from dotenv import load_dotenv
 from file_handler import FileHandlerFactory
 from text_colour_helper import TextColors as TxtClr
+
+# Load API key from .env file
+load_dotenv()
+OMDB_API_KEY = os.getenv("API_KEY")
+
+if not OMDB_API_KEY:
+    raise ValueError("❌ Error: OMDB API key is missing! Please check your .env file.")
 
 POSITIVE_FILE = "positive_responses.json"
 POSITIVE_HANDLER = FileHandlerFactory.get_handler(POSITIVE_FILE)
 
 # Load positive responses
 POSITIVE_RESPONSES = POSITIVE_HANDLER.load_data()
+
+# OMDb base url
+OMDB_URL = "https://www.omdbapi.com/"
+
+
+# https://www.omdbapi.com/?i=tt3896198&apikey=d704f9a
 
 
 class MovieApp:
@@ -21,13 +37,13 @@ class MovieApp:
             "1": self._command_list_movies,
             "2": self._command_add_movie,
             "3": self._command_delete_movie,
-            "4": self._command_update_movie,
-            "5": self._command_movie_stats,
-            "6": self._command_random_movie,
-            "7": self._command_search_movie,
-            "8": self._command_movies_sorted_by_rating,
-            "9": self._command_movies_sorted_by_year,
-            "10": self._command_filter_movies
+            # "4": self._command_update_movie,
+            "4": self._command_movie_stats,
+            "5": self._command_random_movie,
+            "6": self._command_search_movie,
+            "7": self._command_movies_sorted_by_rating,
+            "8": self._command_movies_sorted_by_year,
+            "9": self._command_filter_movies
         }
 
     @staticmethod
@@ -84,8 +100,10 @@ class MovieApp:
         print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
     # Menu item 2.
+    import requests
+
     def _command_add_movie(self):
-        """Handles user input for adding a new movie and delegates storage."""
+        """Handles user input for adding a new movie from OMDb and delegates storage."""
         self._print_section_header(" ADD MOVIE ", TxtClr.LG)
 
         # Get the list of existing movie titles
@@ -94,46 +112,108 @@ class MovieApp:
 
         # Prompt user for a movie title
         while True:
-            title = input("\nEnter movie title: ").strip()
-            if not title:
+            user_title = input("\nEnter movie title: ").strip()
+            if not user_title:
                 print(f"{TxtClr.LR}Title cannot be empty! Please try again.{TxtClr.RESET}")
-            elif title.lower() in existing_titles:
-                print(f"{TxtClr.LY}The movie '{title}' already exists!{TxtClr.RESET}")
+            elif user_title.lower() in existing_titles:
+                print(f"The movie '{TxtClr.LY}{user_title.title()}{TxtClr.RESET}' already exists in the database!")
             else:
                 break
 
-        # Get the movie release year
-        current_year = datetime.datetime.now().year
-        while True:
-            try:
-                year = int(input("Enter movie release year: ").strip())
-                if 1800 <= year <= current_year:
-                    break
-                print(f"{TxtClr.LR}Year must be between 1800 and {current_year}.{TxtClr.RESET}")
-            except ValueError:
-                print(f"{TxtClr.LR}Invalid input! Enter a valid year.{TxtClr.RESET}")
+        # Format title for use in URL
+        formatted_user_title = user_title.replace(" ", "+")
 
-        # Get the movie rating
-        while True:
-            try:
-                rating = float(input("Enter movie rating (0-10): ").strip())
-                if 0 <= rating <= 10:
-                    rating = round(rating, 1)
-                    break
-                print(f"{TxtClr.LR}Rating must be between 0 and 10.{TxtClr.RESET}")
-            except ValueError:
-                print(f"{TxtClr.LR}Invalid input! Enter a valid rating.{TxtClr.RESET}")
+        # Fetch movie details from OMDb API
+        url = f"{OMDB_URL}?t={formatted_user_title}&apikey={OMDB_API_KEY}"
 
-        # (Optional) Get movie poster URL - if not required, remove this
-        poster = input("Enter movie poster URL (optional, press enter to skip): ").strip()
-        # Default to None if not provided
-        if not poster:
-            poster = None
+        try:
+            # Timeout to prevent hanging
+            response = requests.get(url, timeout=5)
+            # Raise HTTP error for bad responses (4xx, 5xx)
+            response.raise_for_status()
 
-        # Store the movie using the storage class
-        self._storage.add_movie(title, year, rating, poster)
+            movie_data = response.json()
 
-        print(f"\n{TxtClr.LG}Movie '{title}' ({year}) added successfully!{TxtClr.RESET}")
+            # Check if movie was not found
+            if "Error" in movie_data:
+                print(
+                    f"{TxtClr.LR}ERROR!{TxtClr.RESET} Title: {TxtClr.LY}{user_title}{TxtClr.RESET} - {movie_data['Error']}"
+                )
+                return
+
+            # Extract movie details
+            title = movie_data.get("Title", "Unknown")
+            year = movie_data.get("Year", "Unknown")
+            rating = movie_data.get("imdbRating", "Unknown")
+            poster = movie_data.get("Poster", "Unknown")
+
+            # Store the movie using the storage class
+            self._storage.add_movie(title, year, rating, poster)
+
+            print(
+                f"\nMovie '{TxtClr.LY}{title}{TxtClr.RESET}' ({TxtClr.LB}{year}{TxtClr.RESET}) | Rating: {rating} "
+                f"{TxtClr.LG}added successfully!{TxtClr.RESET}"
+            )
+
+        except requests.exceptions.ConnectionError:
+            print(f"{TxtClr.LR}Error: Unable to connect to OMDb API. Check your internet connection.{TxtClr.RESET}")
+        except requests.exceptions.Timeout:
+            print(f"{TxtClr.LR}Error: The request timed out. Try again later.{TxtClr.RESET}")
+        except requests.exceptions.HTTPError as http_err:
+            print(f"{TxtClr.LR}HTTP Error: {http_err}{TxtClr.RESET}")
+        except requests.exceptions.RequestException as req_err:
+            print(f"{TxtClr.LR}Request Error: {req_err}{TxtClr.RESET}")
+
+    # def _command_add_movie(self):
+    #     """Handles user input for adding a new movie and delegates storage."""
+    #     self._print_section_header(" ADD MOVIE ", TxtClr.LG)
+    #
+    #     # Get the list of existing movie titles
+    #     existing_movies = self._storage.list_movies()
+    #     existing_titles = {movie["title"].lower() for movie in existing_movies}
+    #
+    #     # Prompt user for a movie title
+    #     while True:
+    #         title = input("\nEnter movie title: ").strip()
+    #         if not title:
+    #             print(f"{TxtClr.LR}Title cannot be empty! Please try again.{TxtClr.RESET}")
+    #         elif title.lower() in existing_titles:
+    #             print(f"{TxtClr.LY}The movie '{title}' already exists!{TxtClr.RESET}")
+    #         else:
+    #             break
+    #
+    #     # Get the movie release year
+    #     current_year = datetime.datetime.now().year
+    #     while True:
+    #         try:
+    #             year = int(input("Enter movie release year: ").strip())
+    #             if 1800 <= year <= current_year:
+    #                 break
+    #             print(f"{TxtClr.LR}Year must be between 1800 and {current_year}.{TxtClr.RESET}")
+    #         except ValueError:
+    #             print(f"{TxtClr.LR}Invalid input! Enter a valid year.{TxtClr.RESET}")
+    #
+    #     # Get the movie rating
+    #     while True:
+    #         try:
+    #             rating = float(input("Enter movie rating (0-10): ").strip())
+    #             if 0 <= rating <= 10:
+    #                 rating = round(rating, 1)
+    #                 break
+    #             print(f"{TxtClr.LR}Rating must be between 0 and 10.{TxtClr.RESET}")
+    #         except ValueError:
+    #             print(f"{TxtClr.LR}Invalid input! Enter a valid rating.{TxtClr.RESET}")
+    #
+    #     # (Optional) Get movie poster URL - if not required, remove this
+    #     poster = input("Enter movie poster URL (optional, press enter to skip): ").strip()
+    #     # Default to None if not provided
+    #     if not poster:
+    #         poster = None
+    #
+    #     # Store the movie using the storage class
+    #     self._storage.add_movie(title, year, rating, poster)
+    #
+    #     print(f"\n{TxtClr.LG}Movie '{title}' ({year}) added successfully!{TxtClr.RESET}")
 
     # Menu item 3.
     def _command_delete_movie(self):
@@ -195,70 +275,70 @@ class MovieApp:
             print(f"\n{TxtClr.LY}Deletion cancelled.{TxtClr.RESET}")
 
     # Menu item 4.
-    def _command_update_movie(self):
-        """Update the rating of an existing movie with best-match suggestions and exit handling."""
-        self._print_section_header(" UPDATE MOVIE ", TxtClr.LM)
-
-        movies = self._storage.list_movies()
-
-        if not movies:
-            print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
-            return
-
-        # Create a dictionary of movie titles (case-insensitive) for lookups
-        movie_titles = {movie["title"].lower(): movie["title"] for movie in movies}
-        all_titles = list(movie_titles.keys())
-
-        while True:
-            title_input = input("\nEnter the movie title to update (or press Enter to cancel): ").strip().lower()
-
-            if not title_input:
-                # Exit the function if user presses Enter
-                print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
-                return
-
-            # Check for an exact match
-            if title_input in movie_titles:
-                matched_title = movie_titles[title_input]
-                break
-
-            # Suggest best matches
-            close_matches = difflib.get_close_matches(title_input, all_titles, n=3, cutoff=0.5)
-            if close_matches:
-                print(f"{TxtClr.LY}Did you mean:{TxtClr.RESET}")
-                for match in close_matches:
-                    print(f"- {TxtClr.LG}{movie_titles[match]}{TxtClr.RESET}")
-
-                retry = input("\nEnter the correct movie title (or press Enter to cancel): ").strip().lower()
-                if not retry:
-                    # Exit function if user presses Enter
-                    print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
-                    return
-                elif retry in movie_titles:
-                    matched_title = movie_titles[retry]
-                    break
-            else:
-                print(f"{TxtClr.LR}No close matches found.{TxtClr.RESET}")
-                retry = input("\nWould you like to try again? (Y / N): ").strip().lower()
-                if retry not in POSITIVE_RESPONSES:
-                    # Exit function if user doesn't want to retry
-                    print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
-                    return
-
-        # Get new rating input
-        while True:
-            try:
-                rating = float(input(f"\nEnter new rating for '{matched_title}' (0-10): ").strip())
-                if 0 <= rating <= 10:
-                    rating = round(rating, 1)
-                    break
-                print(f"{TxtClr.LR}Rating must be between 0 and 10.{TxtClr.RESET}")
-            except ValueError:
-                print(f"{TxtClr.LR}Invalid input! Enter a valid rating.{TxtClr.RESET}")
-
-        # Update the movie rating in storage
-        self._storage.update_movie(matched_title, rating)
-        print(f"\n{TxtClr.LG}Movie '{matched_title}' rating updated to {rating} successfully!{TxtClr.RESET}")
+    # def _command_update_movie(self):
+    #     """Update the rating of an existing movie with best-match suggestions and exit handling."""
+    #     self._print_section_header(" UPDATE MOVIE ", TxtClr.LM)
+    #
+    #     movies = self._storage.list_movies()
+    #
+    #     if not movies:
+    #         print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
+    #         return
+    #
+    #     # Create a dictionary of movie titles (case-insensitive) for lookups
+    #     movie_titles = {movie["title"].lower(): movie["title"] for movie in movies}
+    #     all_titles = list(movie_titles.keys())
+    #
+    #     while True:
+    #         title_input = input("\nEnter the movie title to update (or press Enter to cancel): ").strip().lower()
+    #
+    #         if not title_input:
+    #             # Exit the function if user presses Enter
+    #             print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
+    #             return
+    #
+    #         # Check for an exact match
+    #         if title_input in movie_titles:
+    #             matched_title = movie_titles[title_input]
+    #             break
+    #
+    #         # Suggest best matches
+    #         close_matches = difflib.get_close_matches(title_input, all_titles, n=3, cutoff=0.5)
+    #         if close_matches:
+    #             print(f"{TxtClr.LY}Did you mean:{TxtClr.RESET}")
+    #             for match in close_matches:
+    #                 print(f"- {TxtClr.LG}{movie_titles[match]}{TxtClr.RESET}")
+    #
+    #             retry = input("\nEnter the correct movie title (or press Enter to cancel): ").strip().lower()
+    #             if not retry:
+    #                 # Exit function if user presses Enter
+    #                 print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
+    #                 return
+    #             elif retry in movie_titles:
+    #                 matched_title = movie_titles[retry]
+    #                 break
+    #         else:
+    #             print(f"{TxtClr.LR}No close matches found.{TxtClr.RESET}")
+    #             retry = input("\nWould you like to try again? (Y / N): ").strip().lower()
+    #             if retry not in POSITIVE_RESPONSES:
+    #                 # Exit function if user doesn't want to retry
+    #                 print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
+    #                 return
+    #
+    #     # Get new rating input
+    #     while True:
+    #         try:
+    #             rating = float(input(f"\nEnter new rating for '{matched_title}' (0-10): ").strip())
+    #             if 0 <= rating <= 10:
+    #                 rating = round(rating, 1)
+    #                 break
+    #             print(f"{TxtClr.LR}Rating must be between 0 and 10.{TxtClr.RESET}")
+    #         except ValueError:
+    #             print(f"{TxtClr.LR}Invalid input! Enter a valid rating.{TxtClr.RESET}")
+    #
+    #     # Update the movie rating in storage
+    #     self._storage.update_movie(matched_title, rating)
+    #     print(f"\n{TxtClr.LG}Movie '{matched_title}' rating updated to {rating} successfully!{TxtClr.RESET}")
 
     # Menu item 5.
     def _command_movie_stats(self):
