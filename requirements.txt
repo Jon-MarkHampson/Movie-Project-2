@@ -2,3 +2,4 @@ datetime
 random
 statistics
 colorama
+python-dotenv
