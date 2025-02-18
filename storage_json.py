@@ -65,22 +65,35 @@ class StorageJson(IStorage):
 
 
 def main():
-    """Creates a test instance of StorageJson and lists movies."""
+    """Creates a test instance of StorageJson and performs CRUD operations."""
     storage = StorageJson("test_movie_database.json")
+
+    # List movies before any modifications
+    print("\n🎬 Initial Movie List:")
     movies = storage.list_movies()
-    # storage.delete_movie("Test Movie")
     for movie in movies:
         print(movie)
+
+    # Add a new test movie
+    print("\n➕ Adding Test Movie:")
     storage.add_movie("Test Movie", 1999, 9.9)
     movies = storage.list_movies()
     for movie in movies:
         print(movie)
-    storage.update_movie("Test Movie", 1.1,)
+
+    # Update the test movie's rating
+    print("\n🔄 Updating Test Movie Rating:")
+    storage.update_movie("Test Movie", 1.1)
     movies = storage.list_movies()
     for movie in movies:
         print(movie)
 
-
+    # Delete the test movie
+    print("\n❌ Deleting Test Movie:")
+    storage.delete_movie("Test Movie")
+    movies = storage.list_movies()
+    for movie in movies:
+        print(movie)
 
 if __name__ == "__main__":
     main()
