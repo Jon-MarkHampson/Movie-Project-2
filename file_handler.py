@@ -31,15 +31,15 @@ class JSONFileHandler(BaseFileHandler):
 
     def load_data(self):
         """Public method to load JSON data."""
-        # Return an empty list if the file does not exist
+        # Return an empty dictionary if the file does not exist
         if not os.path.exists(self._file_path):
-            return []
+            return {}
 
         try:
             return self._load_json()
         except json.JSONDecodeError:
             print(f"Error: Invalid JSON format in {self._file_path}")
-            return []
+            return {}
 
     def save_data(self, data):
         """Public method to save data as JSON."""
@@ -77,7 +77,7 @@ class CSVFileHandler(BaseFileHandler):
         """Private method to load CSV data."""
         with open(self._file_path, "r", encoding="utf-8") as handle:
             reader = csv.DictReader(handle)
-            return list(reader)
+            return list(reader) if reader.fieldnames else []
 
     def _save_csv(self, data):
         """Private method to save CSV data."""
@@ -145,17 +145,24 @@ class FileHandlerFactory:
     def get_handler(file_path):
         """Public factory method to create a handler based on the file type."""
         ext = os.path.splitext(file_path)[1].lower()
-        if ext == ".json":
-            return JSONFileHandler(file_path)
-        elif ext == ".csv":
-            return CSVFileHandler(file_path)
-        elif ext == ".txt":
-            return TXTFileHandler(file_path)
-        # Add more binary types as required
-        elif ext in [".bin", ".dat", ".png", ".jpg", ".mp3", ".wav", ".pdf"]:
-            return BinaryFileHandler(file_path)
+        handlers = {
+            ".json": JSONFileHandler,
+            ".csv": CSVFileHandler,
+            ".txt": TXTFileHandler,
+            ".bin": BinaryFileHandler,
+            ".dat": BinaryFileHandler,
+            ".png": BinaryFileHandler,
+            ".jpg": BinaryFileHandler,
+            ".mp3": BinaryFileHandler,
+            ".wav": BinaryFileHandler,
+            ".pdf": BinaryFileHandler,
+        }
+
+        if ext in handlers:
+            return handlers[ext](file_path)
         else:
-            raise ValueError(f"Unsupported file type: {ext}")
+            supported_types = ", ".join(handlers.keys())
+            raise ValueError(f"Unsupported file type: {ext}. Supported types: {supported_types}")
 
 
 def main():
