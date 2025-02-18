@@ -1,4 +1,3 @@
-import json
 from file_handler import FileHandlerFactory
 from istorage import IStorage
 
