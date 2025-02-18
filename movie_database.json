@@ -1,1 +1,249 @@
-{"movies": [{"title": "In the Name of the Father", "year": 1993, "rating": 8.1}, {"title": "Titanic", "year": 1997, "rating": 7.9}, {"title": "The Shawshank Redemption", "year": 1994, "rating": 9.3}, {"title": "The Godfather", "year": 1972, "rating": 9.2}, {"title": "The Dark Knight", "year": 2008, "rating": 9.0}, {"title": "Schindler's List", "year": 1993, "rating": 8.9}, {"title": "Forrest Gump", "year": 1994, "rating": 8.8}, {"title": "Pulp Fiction", "year": 1994, "rating": 8.9}, {"title": "The Matrix", "year": 1999, "rating": 7.0}, {"title": "Fight Club", "year": 1999, "rating": 8.8}, {"title": "Bill & Ted's Excellent Adventure", "year": 1989, "rating": 6.9}, {"title": "Inception", "year": 2010, "rating": 8.8}, {"title": "Interstellar", "year": 2014, "rating": 8.7}, {"title": "Ex Machina", "year": 2014, "rating": 7.7}, {"title": "The Jerk", "year": 1979, "rating": 7.1}, {"title": "The Grand Budapest Hotel", "year": 2014, "rating": 8.1}, {"title": "Parasite", "year": 2019, "rating": 8.6}, {"title": "Whiplash", "year": 2014, "rating": 8.5}, {"title": "Blade Runner 2049", "year": 2017, "rating": 8.0}, {"title": "Mad Max: Fury Road", "year": 2015, "rating": 8.1}, {"title": "The Social Network", "year": 2010, "rating": 7.8}, {"title": "The Silence of the Lambs", "year": 1991, "rating": 8.6}, {"title": "Django Unchained", "year": 2012, "rating": 8.4}, {"title": "The Wolf of Wall Street", "year": 2013, "rating": 8.2}, {"title": "Gladiator", "year": 2000, "rating": 8.5}]}
+{
+    "movies": [
+        {
+            "title": "In the Name of the Father",
+            "year": "1993",
+            "rating": "8.1",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMGZiZDVjNzYtZWM4ZC00MzVkLThhNDEtMDJlOTBhYzVjMmNhXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Titanic",
+            "year": "1997",
+            "rating": "7.9",
+            "poster": "https://m.media-amazon.com/images/M/MV5BYzYyN2FiZmUtYWYzMy00MzViLWJkZTMtOGY1ZjgzNWMwN2YxXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Shawshank Redemption",
+            "year": "1994",
+            "rating": "9.3",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMDAyY2FhYjctNDc5OS00MDNlLThiMGUtY2UxYWVkNGY2ZjljXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Godfather",
+            "year": "1972",
+            "rating": "9.2",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Dark Knight",
+            "year": "2008",
+            "rating": "9.0",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Schindler's List",
+            "year": "1993",
+            "rating": "9.0",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNjM1ZDQxYWUtMzQyZS00MTE1LWJmZGYtNGUyNTdlYjM3ZmVmXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Forrest Gump",
+            "year": "1994",
+            "rating": "8.8",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNDYwNzVjMTItZmU5YS00YjQ5LTljYjgtMjY2NDVmYWMyNWFmXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Pulp Fiction",
+            "year": "1994",
+            "rating": "8.9",
+            "poster": "https://m.media-amazon.com/images/M/MV5BYTViYTE3ZGQtNDBlMC00ZTAyLTkyODMtZGRiZDg0MjA2YThkXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Matrix",
+            "year": "1999",
+            "rating": "8.7",
+            "poster": "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Fight Club",
+            "year": "1999",
+            "rating": "8.8",
+            "poster": "https://m.media-amazon.com/images/M/MV5BOTgyOGQ1NDItNGU3Ny00MjU3LTg2YWEtNmEyYjBiMjI1Y2M5XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Bill",
+            "year": "2015",
+            "rating": "6.6",
+            "poster": "https://m.media-amazon.com/images/M/MV5BOTQ1YmQ0OWItZmEyYS00ZWQ3LWFjNDgtMzUyZjNiZDkxMjRjXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Inception",
+            "year": "2010",
+            "rating": "8.8",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Interstellar",
+            "year": "2014",
+            "rating": "8.7",
+            "poster": "https://m.media-amazon.com/images/M/MV5BYzdjMDAxZGItMjI2My00ODA1LTlkNzItOWFjMDU5ZDJlYWY3XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Ex Machina",
+            "year": "2014",
+            "rating": "7.7",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTUxNzc0OTIxMV5BMl5BanBnXkFtZTgwNDI3NzU2NDE@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Jerk",
+            "year": "1979",
+            "rating": "7.1",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNTNiNjEwZjktNTZjMi00NWMyLThkZWYtODVkMDVhNGVkZDcxXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Grand Budapest Hotel",
+            "year": "2014",
+            "rating": "8.1",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMzM5NjUxOTEyMl5BMl5BanBnXkFtZTgwNjEyMDM0MDE@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Parasite",
+            "year": "2019",
+            "rating": "8.5",
+            "poster": "https://m.media-amazon.com/images/M/MV5BYjk1Y2U4MjQtY2ZiNS00OWQyLWI3MmYtZWUwNmRjYWRiNWNhXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Whiplash",
+            "year": "2014",
+            "rating": "8.5",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMDFjOWFkYzktYzhhMC00NmYyLTkwY2EtYjViMDhmNzg0OGFkXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Blade Runner 2049",
+            "year": "2017",
+            "rating": "8.0",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNzA1Njg4NzYxOV5BMl5BanBnXkFtZTgwODk5NjU3MzI@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Mad Max: Fury Road",
+            "year": "2015",
+            "rating": "8.1",
+            "poster": "https://m.media-amazon.com/images/M/MV5BZDRkODJhOTgtOTc1OC00NTgzLTk4NjItNDgxZDY4YjlmNDY2XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Social Network",
+            "year": "2010",
+            "rating": "7.8",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMjlkNTE5ZTUtNGEwNy00MGVhLThmZjMtZjU1NDE5Zjk1NDZkXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Silence of the Lambs",
+            "year": "1991",
+            "rating": "8.6",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNDdhOGJhYzctYzYwZC00YmI2LWI0MjctYjg4ODdlMDExYjBlXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Django Unchained",
+            "year": "2012",
+            "rating": "8.5",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMjIyNTQ5NjQ1OV5BMl5BanBnXkFtZTcwODg1MDU4OA@@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Gladiator",
+            "year": "2000",
+            "rating": "8.5",
+            "poster": "https://m.media-amazon.com/images/M/MV5BYWQ4YmNjYjEtOWE1Zi00Y2U4LWI4NTAtMTU0MjkxNWQ1ZmJiXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The West Wing",
+            "year": "1999–2006",
+            "rating": "8.9",
+            "poster": "https://m.media-amazon.com/images/M/MV5BY2I2Mzc0YjItN2I3MS00NjNjLWE5OWUtYmQzMjkxZjIwOGY5XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "series"
+        },
+        {
+            "title": "Mr. Robot",
+            "year": "2015–2019",
+            "rating": "8.5",
+            "poster": "https://m.media-amazon.com/images/M/MV5BOTg4NTBiZDAtZTc0YS00NzZlLTg4Y2ItNGQ3M2ZlMDM5MWQzXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "series"
+        },
+        {
+            "title": "The Lion King",
+            "year": "1994",
+            "rating": "8.5",
+            "poster": "https://m.media-amazon.com/images/M/MV5BZGRiZDZhZjItM2M3ZC00Y2IyLTk3Y2MtMWY5YjliNDFkZTJlXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Little Mermaid",
+            "year": "2016",
+            "rating": "4.1",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNjQ0NTg0MzY5NF5BMl5BanBnXkFtZTgwOTgxOTU2NzE@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Frozen",
+            "year": "2013",
+            "rating": "7.4",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTQ1MjQwMTE5OF5BMl5BanBnXkFtZTgwNjk3MTcyMDE@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Robin Hood",
+            "year": "2010",
+            "rating": "6.6",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTM5NzcwMzEwOF5BMl5BanBnXkFtZTcwNjg5MTgwMw@@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Magnolia",
+            "year": "1999",
+            "rating": "8.0",
+            "poster": "https://m.media-amazon.com/images/M/MV5BOWY0Zjk1YTMtMGFlYi00OTFmLWEyOTAtNmRkYjE0ZDJiZWMwXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Finding Nemo",
+            "year": "2003",
+            "rating": "8.2",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTc5NjExNTA5OV5BMl5BanBnXkFtZTYwMTQ0ODY2._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Terminator 2: Judgment Day",
+            "year": "1991",
+            "rating": "8.6",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNGMyMGNkMDUtMjc2Ni00NWFlLTgyODEtZTY2MzBiZTg0OWZiXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "I, Robot",
+            "year": "2004",
+            "rating": "7.1",
+            "poster": "https://m.media-amazon.com/images/M/MV5BZDdhNTY3YTgtYmQwMC00MjM1LTgzYzMtMGM1N2E0NWM1NDlkXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "A Fish Called Wanda",
+            "year": "1988",
+            "rating": "7.5",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNjFhZDg1ZmEtYmI0Ny00MjM3LWIxNzItMzU1MzczZTljMTkxXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        }
+    ]
+}

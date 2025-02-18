@@ -1,6 +1,5 @@
 import os
 import statistics
-# import datetime
 import difflib
 import random
 import requests
@@ -18,14 +17,13 @@ if not OMDB_API_KEY:
 POSITIVE_FILE = "positive_responses.json"
 POSITIVE_HANDLER = FileHandlerFactory.get_handler(POSITIVE_FILE)
 
-# Load positive responses
-POSITIVE_RESPONSES = POSITIVE_HANDLER.load_data()
+# Extract the positive responses list inside the JSON file correctly
+POSITIVE_RESPONSES = set(
+    response.strip().lower() for response in POSITIVE_HANDLER.load_data().get("positive_responses", [])
+)
 
 # OMDb base url
 OMDB_URL = "https://www.omdbapi.com/"
-
-
-# https://www.omdbapi.com/?i=tt3896198&apikey=d704f9a
 
 
 class MovieApp:
@@ -53,6 +51,31 @@ class MovieApp:
         print(f"{TxtClr.BOLD}{color}{title.center(40, '=')}{TxtClr.RESET}")
         print(f"{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
+    @staticmethod
+    def _convert_movies_dict_string_values_to_numbers(movies):
+        """Convert year and rating to appropriate types where possible."""
+        for movie in movies:
+            movie["year"] = int(movie["year"].split("–")[0]) if movie["year"].isdigit() or "–" in movie["year"] else 0
+            movie["rating"] = float(movie["rating"]) if movie["rating"].replace(".", "", 1).isdigit() else 0.0
+            movie["media_type"] = movie.get("media_type", "movie")
+        return movies
+
+    @staticmethod
+    def _print_movie_or_movie_list(movies):
+        """Prints a formatted list of movies."""
+        for movie in movies:
+            type_symbol = {"movie": "🎬", "series": "📺"}.get(movie["media_type"], "🍿")
+            print(
+                f"{type_symbol} {TxtClr.LY}{movie['title']} {TxtClr.LB}({movie['year']}){TxtClr.RESET} "
+                f"{TxtClr.LM}[{movie['media_type']}] {TxtClr.RESET}| "
+                f"Rating: {TxtClr.LG}{movie['rating']}{TxtClr.RESET}")
+
+    def _display_best_or_worst(self, title, rating, movies):
+        """Prints movies with the highest or lowest rating."""
+        matching_movies = [movie for movie in movies if movie["rating"] == rating]
+        print(f"\n{title}:")
+        self._print_movie_or_movie_list(matching_movies)
+
     def _print_menu(self, dispatcher_menu):
         """Prints a formatted menu using the generic header method."""
         self._print_section_header(" MOVIE MENU ", TxtClr.LY)
@@ -72,7 +95,7 @@ class MovieApp:
 
     # Menu item 1.
     def _command_list_movies(self):
-        """Displays the list of movies with formatting."""
+        """Displays the list of movies with formatting, handling string-based years and ratings."""
         self._print_section_header(" LIST MOVIES ", TxtClr.LB)
 
         movies = self._storage.list_movies()
@@ -80,6 +103,9 @@ class MovieApp:
         if not movies:
             print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
             return
+
+        # Convert year and rating to appropriate types where possible
+        self._convert_movies_dict_string_values_to_numbers(movies)
 
         # Ask user if they want chronological sorting
         chronological_order = input(
@@ -91,17 +117,13 @@ class MovieApp:
         else:
             sorted_movies = sorted(movies, key=lambda m: (-m["rating"], m["title"]))
 
-        print(f"\n{TxtClr.LG}Total movies: {len(movies)}{TxtClr.RESET}\n")
+        print(f"\nTotal movies currently in database: {TxtClr.LG}{len(movies)}{TxtClr.RESET}\n")
 
-        for movie in sorted_movies:
-            print(
-                f"{TxtClr.LY}{movie['title']} {TxtClr.LB}({movie['year']}){TxtClr.RESET}: {TxtClr.LG}{movie['rating']}{TxtClr.RESET}")
-
+        # Print out the sorted list of movies to console
+        self._print_movie_or_movie_list(sorted_movies)
         print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
     # Menu item 2.
-    import requests
-
     def _command_add_movie(self):
         """Handles user input for adding a new movie from OMDb and delegates storage."""
         self._print_section_header(" ADD MOVIE ", TxtClr.LG)
@@ -110,15 +132,20 @@ class MovieApp:
         existing_movies = self._storage.list_movies()
         existing_titles = {movie["title"].lower() for movie in existing_movies}
 
-        # Prompt user for a movie title
         while True:
-            user_title = input("\nEnter movie title: ").strip()
+            user_title = input("\nEnter movie or TV title (or press Enter to cancel): ").strip()
+
+            # Allow user to cancel by pressing Enter
             if not user_title:
-                print(f"{TxtClr.LR}Title cannot be empty! Please try again.{TxtClr.RESET}")
-            elif user_title.lower() in existing_titles:
-                print(f"The movie '{TxtClr.LY}{user_title.title()}{TxtClr.RESET}' already exists in the database!")
-            else:
-                break
+                print(f"{TxtClr.LY}Operation cancelled.{TxtClr.RESET}")
+                return
+
+            # Prevent duplicates
+            if user_title.lower() in existing_titles:
+                print(f"The title '{TxtClr.LY}{user_title.title()}{TxtClr.RESET}' is already in the database!")
+                continue  # Prompt again if the movie already exists
+
+            break  # Valid input received, continue
 
         # Format title for use in URL
         formatted_user_title = user_title.replace(" ", "+")
@@ -129,31 +156,31 @@ class MovieApp:
         try:
             # Timeout to prevent hanging
             response = requests.get(url, timeout=5)
-            # Raise HTTP error for bad responses (4xx, 5xx)
-            response.raise_for_status()
-
+            response.raise_for_status()  # Raise HTTP error for bad responses (4xx, 5xx)
             movie_data = response.json()
 
             # Check if movie was not found
             if "Error" in movie_data:
                 print(
-                    f"{TxtClr.LR}ERROR!{TxtClr.RESET} Title: {TxtClr.LY}{user_title}{TxtClr.RESET} - {movie_data['Error']}"
-                )
+                    f"{TxtClr.LR}ERROR!{TxtClr.RESET} Title: {TxtClr.LY}{user_title}{TxtClr.RESET} - {movie_data['Error']}")
                 return
 
             # Extract movie details
             title = movie_data.get("Title", "Unknown")
             year = movie_data.get("Year", "Unknown")
-            rating = movie_data.get("imdbRating", "Unknown")
-            poster = movie_data.get("Poster", "Unknown")
+            rating = movie_data.get("imdbRating", "N/A")
+            poster = movie_data.get("Poster", "N/A")
+            media_type = movie_data.get("Type", "movie")  # Default to 'movie'
 
             # Store the movie using the storage class
-            self._storage.add_movie(title, year, rating, poster)
+            self._storage.add_movie(title, year, rating, poster, media_type)
 
-            print(
-                f"\nMovie '{TxtClr.LY}{title}{TxtClr.RESET}' ({TxtClr.LB}{year}{TxtClr.RESET}) | Rating: {rating} "
-                f"{TxtClr.LG}added successfully!{TxtClr.RESET}"
-            )
+            # Print out the successfully added movie
+            formatted_movie = [
+                {"title": title, "year": year, "rating": rating, "poster": poster, "media_type": media_type}
+            ]
+            print(f"\n{TxtClr.LG}Successfully added movie!{TxtClr.RESET}")
+            self._print_movie_or_movie_list(formatted_movie)
 
         except requests.exceptions.ConnectionError:
             print(f"{TxtClr.LR}Error: Unable to connect to OMDb API. Check your internet connection.{TxtClr.RESET}")
@@ -223,7 +250,7 @@ class MovieApp:
         movies = self._storage.list_movies()
 
         if not movies:
-            print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
+            print(f"{TxtClr.LR}No titles found in the database.{TxtClr.RESET}")
             return
 
         # Create a dictionary of movie titles (case-insensitive) for lookups
@@ -231,7 +258,7 @@ class MovieApp:
         all_titles = list(movie_titles.keys())
 
         while True:
-            title_input = input("\nEnter the movie title to delete (or press Enter to cancel): ").strip().lower()
+            title_input = input("\nEnter the title to delete (or press Enter to cancel): ").strip().lower()
 
             if not title_input:
                 # Exit the function if user presses Enter
@@ -246,9 +273,9 @@ class MovieApp:
             # Suggest best matches
             close_matches = difflib.get_close_matches(title_input, all_titles, n=3, cutoff=0.5)
             if close_matches:
-                print(f"{TxtClr.LY}Did you mean:{TxtClr.RESET}")
+                print(f"{TxtClr.LB}Did you mean:{TxtClr.RESET}")
                 for match in close_matches:
-                    print(f"- {TxtClr.LG}{movie_titles[match]}{TxtClr.RESET}")
+                    print(f"- {TxtClr.LY}{movie_titles[match]}{TxtClr.RESET}")
 
                 retry = input("\nEnter the correct movie title (or press Enter to cancel): ").strip().lower()
                 if not retry:
@@ -267,10 +294,11 @@ class MovieApp:
                     return
 
         # Confirm deletion
-        confirm = input(f"\nAre you sure you want to delete '{matched_title}'? (Y / N): ").strip().lower()
+        confirm = input(
+            f"\nAre you sure you want to {TxtClr.LR}delete{TxtClr.RESET} '{TxtClr.LY}{matched_title}{TxtClr.RESET}'? (Y / N): ").strip().lower()
         if confirm in POSITIVE_RESPONSES:
             self._storage.delete_movie(matched_title)
-            print(f"\n{TxtClr.LG}Movie '{matched_title}' has been successfully deleted!{TxtClr.RESET}")
+            print(f"\nMovie '{TxtClr.LY}{matched_title}{TxtClr.RESET}' has been successfully deleted!")
         else:
             print(f"\n{TxtClr.LY}Deletion cancelled.{TxtClr.RESET}")
 
@@ -340,19 +368,22 @@ class MovieApp:
     #     self._storage.update_movie(matched_title, rating)
     #     print(f"\n{TxtClr.LG}Movie '{matched_title}' rating updated to {rating} successfully!{TxtClr.RESET}")
 
-    # Menu item 5.
+    # Menu item 4.
     def _command_movie_stats(self):
         """
         Calculate and display average and median ratings.
         Print all movies with the highest and lowest ratings.
         """
-        self._print_section_header(" MOVIE STATISTICS ", TxtClr.LG)
+        self._print_section_header(" STATISTICS ", TxtClr.LG)
 
         movies = self._storage.list_movies()
 
         if not movies:
             print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
             return
+
+        # Convert year and rating to appropriate types where possible
+        self._convert_movies_dict_string_values_to_numbers(movies)
 
         # Extract all ratings
         ratings = [movie["rating"] for movie in movies]
@@ -363,25 +394,16 @@ class MovieApp:
         max_rating = max(ratings)
         min_rating = min(ratings)
 
-        print(f"\n{TxtClr.LG}Average Rating: {TxtClr.RESET}{avg_rating:.2f}/10")
-        print(f"{TxtClr.LG}Median Rating: {TxtClr.RESET}{median_rating:.2f}/10")
-
-        def display_best_or_worst(title, rating):
-            """Prints movies with the highest or lowest rating."""
-            matching_movies = [movie for movie in movies if movie["rating"] == rating]
-
-            print(f"\n{title}:")
-            for movie in matching_movies:
-                print(f"- {TxtClr.LY}{movie['title']}{TxtClr.RESET} {TxtClr.LB}({movie['year']}){TxtClr.RESET}: "
-                      f"{TxtClr.LG}{movie['rating']}/10{TxtClr.RESET}")
+        print(f"\nAverage Rating: {TxtClr.LG}{avg_rating:.2f}{TxtClr.RESET}")
+        print(f"Median Rating: {TxtClr.LG}{median_rating:.2f}{TxtClr.RESET}")
 
         # Display best and worst movies
-        display_best_or_worst("Best Movie(s)", max_rating)
-        display_best_or_worst("Worst Movie(s)", min_rating)
+        self._display_best_or_worst("Best Movie(s)", max_rating, movies)
+        self._display_best_or_worst("Worst Movie(s)", min_rating, movies)
 
         print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
-    # Menu item 6.
+    # Menu item 5.
     def _command_random_movie(self):
         """Selects and displays a random movie from the database."""
         self._print_section_header(" RANDOM MOVIE ", TxtClr.LG)
@@ -393,13 +415,14 @@ class MovieApp:
             return
 
         # Pick a random movie
-        random_movie = random.choice(movies)
+        random_movie = [random.choice(movies)]
 
-        print(f"\n🎬 {TxtClr.LY}{random_movie['title']}{TxtClr.RESET} "
-              f"{TxtClr.LB}({random_movie['year']}){TxtClr.RESET}: "
-              f"{TxtClr.LG}{random_movie['rating']}/10{TxtClr.RESET}")
+        # Print random movie to console
+        print("\nYour randomly selected title is...")
+        self._print_movie_or_movie_list(random_movie)
+        print("Enjoy the show!\n")
 
-    # Menu item 7.
+    # Menu item 6.
     def _command_search_movie(self):
         """Search for a movie with best-match suggestions."""
         self._print_section_header(" SEARCH MOVIE ", TxtClr.LM)
@@ -450,12 +473,11 @@ class MovieApp:
                     print(f"{TxtClr.LY}Search cancelled.{TxtClr.RESET}")
                     return
 
-        # Display movie details
-        print(f"\n🎬 {TxtClr.LY}{matched_movie['title']}{TxtClr.RESET} "
-              f"{TxtClr.LB}({matched_movie['year']}){TxtClr.RESET}: "
-              f"{TxtClr.LG}{matched_movie['rating']}/10{TxtClr.RESET}")
+        # Display search result details
+        formatted_movie_for_printing = [matched_movie]
+        self._print_movie_or_movie_list(formatted_movie_for_printing)
 
-    # Menu item 8.
+    # Menu item 7.
     def _command_movies_sorted_by_rating(self):
         """Displays movies sorted by rating from highest to lowest."""
         self._print_section_header(" MOVIES SORTED BY RATING ", TxtClr.LG)
@@ -466,18 +488,25 @@ class MovieApp:
             print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
             return
 
+        # Convert year and rating to appropriate types where possible
+        self._convert_movies_dict_string_values_to_numbers(movies)
+
         # Sort movies by rating (highest to lowest)
         sorted_movies = sorted(movies, key=lambda m: -m["rating"])
 
         print(f"\n{TxtClr.LG}Total movies: {len(movies)}{TxtClr.RESET}\n")
 
-        for movie in sorted_movies:
-            print(f"{TxtClr.LY}{movie['title']} {TxtClr.LB}({movie['year']}){TxtClr.RESET}: "
-                  f"{TxtClr.LG}{movie['rating']}/10{TxtClr.RESET}")
-
+        # Print out the sorted list of movies to console
+        self._print_movie_or_movie_list(sorted_movies)
         print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
-    # Menu item 9.
+        # for movie in sorted_movies:
+        #     print(f"{TxtClr.LY}{movie['title']} {TxtClr.LB}({movie['year']}){TxtClr.RESET}: "
+        #           f"{TxtClr.LG}{movie['rating']}/10{TxtClr.RESET}")
+        #
+        # print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
+
+    # Menu item 8.
     def _command_movies_sorted_by_year(self):
         """Displays movies sorted by year in chronological or reverse order."""
         self._print_section_header(" MOVIES SORTED BY YEAR ", TxtClr.M)
@@ -487,6 +516,9 @@ class MovieApp:
         if not movies:
             print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
             return
+
+        # Convert year and rating to appropriate types where possible
+        self._convert_movies_dict_string_values_to_numbers(movies)
 
         # Ask user for sorting preference
         order_choice = input("\nWould you like to view movies in chronological order? (Y / N): ").strip().lower()
@@ -500,13 +532,11 @@ class MovieApp:
 
         print(f"\n{TxtClr.LG}Total movies: {len(movies)}{TxtClr.RESET}\n")
 
-        for movie in sorted_movies:
-            print(f"{TxtClr.LY}{movie['title']} {TxtClr.LB}({movie['year']}){TxtClr.RESET}: "
-                  f"{TxtClr.LG}{movie['rating']}/10{TxtClr.RESET}")
-
+        # Print out the sorted list of movies to console
+        self._print_movie_or_movie_list(sorted_movies)
         print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
-    # Menu item 10.
+    # Menu item 9.
     def _command_filter_movies(self):
         """Filters movies based on user-defined year range or rating threshold."""
         self._print_section_header(" FILTER MOVIES ", TxtClr.LB)
@@ -516,6 +546,9 @@ class MovieApp:
         if not movies:
             print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
             return
+
+        # Convert year and rating to appropriate types where possible
+        self._convert_movies_dict_string_values_to_numbers(movies)
 
         while True:
             print("\nChoose a filter:")
@@ -568,11 +601,10 @@ class MovieApp:
                 print(f"{TxtClr.LR}Invalid choice. Please enter 1, 2, or 3.{TxtClr.RESET}")
                 continue
 
-            # Display filtered movies
-            for movie in sorted(filtered_movies, key=lambda m: (-m["rating"], m["year"])):
-                print(f"{TxtClr.LY}{movie['title']} {TxtClr.LB}({movie['year']}){TxtClr.RESET}: "
-                      f"{TxtClr.LG}{movie['rating']}/10{TxtClr.RESET}")
+            sorted_movies = sorted(filtered_movies, key=lambda m: (-m["rating"], m["year"]))
 
+            # Print out the sorted list of movies to console
+            self._print_movie_or_movie_list(sorted_movies)
             print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
             return
 

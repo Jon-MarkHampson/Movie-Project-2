@@ -16,18 +16,21 @@ class StorageJson(IStorage):
         Extracts the "movies" key from the JSON structure.
         """
         data = self.file_handler.load_data()
-        return data.get("movies", [])  # Ensure we return just the movie list
+        return data.get("movies", [])
 
-    def add_movie(self, title, year, rating, poster=None):
+    def add_movie(self, title, year, rating, poster=None, media_type="movie"):
         """
         Adds a movie to the database and saves it.
         Ensures the poster is stored properly (None if not provided).
         """
         movies = self.list_movies()
-        poster = poster.strip() if poster else None  # Prevents empty string posters
 
-        movies.append({"title": title, "year": year, "rating": rating, "poster": poster})
-        self.file_handler.save_data({"movies": movies})  # Store back in correct format
+        # Prevents empty string posters
+        poster = poster.strip() if poster else None
+
+        movies.append({"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type})
+        # Store back in correct format
+        self.file_handler.save_data({"movies": movies})
 
     def delete_movie(self, title):
         """
@@ -44,7 +47,7 @@ class StorageJson(IStorage):
 
         self.file_handler.save_data({"movies": updated_movies})  # Store back in correct format
 
-    def update_movie(self, title, rating, poster=None):
+    def update_movie(self, title, rating, poster=None, media_type="movie"):
         """
         Updates the rating and/or poster of a movie by title (case-insensitive).
         If a poster is provided, it updates it; otherwise, it remains unchanged.
@@ -54,9 +57,12 @@ class StorageJson(IStorage):
         for movie in movies:
             if movie["title"].lower() == title.lower():
                 movie["rating"] = rating
-                if poster is not None:  # Update only if a new poster is provided
+                # Update only if a new poster is provided
+                if poster is not None:
                     movie["poster"] = poster.strip() if poster else None
-                self.file_handler.save_data({"movies": movies})  # Store back in correct format
+                movie["media_type"] = media_type
+                # Store back in correct format
+                self.file_handler.save_data({"movies": movies})
                 print(f"Movie {title} has been successfully updated.")
                 return
 

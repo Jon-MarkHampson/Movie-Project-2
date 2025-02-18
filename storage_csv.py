@@ -26,13 +26,13 @@ class StorageCsv(IStorage):
             for movie in movies
         ]
 
-    def add_movie(self, title, year, rating, poster=None):
+    def add_movie(self, title, year, rating, poster=None, media_type="movie"):
         """
         Adds a movie to the CSV database.
         Saves movie with an empty string if poster is None.
         """
         movies = self.list_movies()
-        movies.append({"title": title, "year": year, "rating": rating, "poster": poster or ""})
+        movies.append({"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type})
         self.file_handler.save_data(movies)
 
     def delete_movie(self, title):
