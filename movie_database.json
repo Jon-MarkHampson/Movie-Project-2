@@ -190,13 +190,6 @@
             "media_type": "movie"
         },
         {
-            "title": "Little Mermaid",
-            "year": "2016",
-            "rating": "4.1",
-            "poster": "https://m.media-amazon.com/images/M/MV5BNjQ0NTg0MzY5NF5BMl5BanBnXkFtZTgwOTgxOTU2NzE@._V1_SX300.jpg",
-            "media_type": "movie"
-        },
-        {
             "title": "Frozen",
             "year": "2013",
             "rating": "7.4",
@@ -243,6 +236,41 @@
             "year": "1988",
             "rating": "7.5",
             "poster": "https://m.media-amazon.com/images/M/MV5BNjFhZDg1ZmEtYmI0Ny00MjM3LWIxNzItMzU1MzczZTljMTkxXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Pineapple Express",
+            "year": "2008",
+            "rating": "6.9",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTY1MTE4NzAwM15BMl5BanBnXkFtZTcwNzg3Mjg2MQ@@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Q",
+            "year": "2023",
+            "rating": "7.4",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNDVmNjQwY2YtYzJlYS00ODllLTg2MDAtMmQ3NzMyYTdiYjIxXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Little Mermaid",
+            "year": "1989",
+            "rating": "7.6",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNmQ3ODcyZGMtMjNlOS00YzhlLTg0YzAtZGVjNmQ0OTYyNDg0XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Little Mermaid",
+            "year": "2016",
+            "rating": "4.1",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNjQ0NTg0MzY5NF5BMl5BanBnXkFtZTgwOTgxOTU2NzE@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "Deti 90-kh",
+            "year": "2015",
+            "rating": "N/A",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNDc3MjU2NDEtN2Q0OC00NTM4LTkwNzctZTI2NTk3ZDQ5OWUxXkEyXkFqcGdeQXVyOTM5NjQ0Mjg@._V1_SX300.jpg",
             "media_type": "movie"
         }
     ]
