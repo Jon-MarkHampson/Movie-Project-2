@@ -28,7 +28,8 @@ class StorageJson(IStorage):
         # Prevents empty string posters
         poster = poster.strip() if poster else None
 
-        movies.append({"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type})
+        movies.append(
+            {"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type})
         # Store back in correct format
         self.file_handler.save_data({"movies": movies})
 
@@ -42,8 +43,6 @@ class StorageJson(IStorage):
 
         if len(updated_movies) == len(movies):
             print(f"{title} not found in database.")
-        else:
-            print(f"{title} has been deleted.")
 
         self.file_handler.save_data({"movies": updated_movies})  # Store back in correct format
 
@@ -99,6 +98,7 @@ def main():
     movies = storage.list_movies()
     for movie in movies:
         print(movie)
+
 
 if __name__ == "__main__":
     main()

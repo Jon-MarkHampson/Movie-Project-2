@@ -32,7 +32,8 @@ class StorageCsv(IStorage):
         Saves movie with an empty string if poster is None.
         """
         movies = self.list_movies()
-        movies.append({"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type})
+        movies.append(
+            {"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type})
         self.file_handler.save_data(movies)
 
     def delete_movie(self, title):
@@ -45,8 +46,6 @@ class StorageCsv(IStorage):
 
         if len(updated_movies) == len(movies):
             print(f"{title} not found in database.")
-        else:
-            print(f"{title} has been deleted.")
 
         self.file_handler.save_data(updated_movies)
 
