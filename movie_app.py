@@ -1,6 +1,5 @@
 import os
 import statistics
-import difflib
 import random
 import requests
 from dotenv import load_dotenv
@@ -14,6 +13,12 @@ OMDB_API_KEY = os.getenv("API_KEY")
 
 if not OMDB_API_KEY:
     raise ValueError("❌ Error: OMDB API key is missing! Please check your .env file.")
+
+HTML_TEMPLATE_FILE = "templates/index_template.html"
+HTML_TEMPLATE_HANDLER = FileHandlerFactory.get_handler(HTML_TEMPLATE_FILE)
+
+HTML_OUTPUT_FILE = "dist/index.html"
+HTML_OUTPUT_HANDLER = FileHandlerFactory.get_handler(HTML_OUTPUT_FILE)
 
 POSITIVE_FILE = "positive_responses.json"
 POSITIVE_HANDLER = FileHandlerFactory.get_handler(POSITIVE_FILE)
@@ -43,7 +48,8 @@ class MovieApp:
             "6": self._command_search_movie,
             "7": self._command_movies_sorted_by_rating,
             "8": self._command_movies_sorted_by_year,
-            "9": self._command_filter_movies
+            "9": self._command_filter_movies,
+            "10": self._command_generate_website
         }
 
     @staticmethod
@@ -540,8 +546,57 @@ class MovieApp:
             # Exit after displaying results
             return
 
-    def _generate_website(self):
-        pass
+    # Menu item 10.
+    def _command_generate_website(self):
+        """Creates a website based on the content of the database."""
+
+        html_output_title = "JON-MARK'S FAVOURITE MOVIES & TV"
+        placeholder_title = "__TEMPLATE_TITLE__"
+        placeholder_grid = "__TEMPLATE_MOVIE_GRID__"
+
+        # Load the movies from storage
+        movies = self._storage.list_movies()
+
+        # Create a list HTML formatted items from movies
+        movies_html_formatted_list = [self._dict_to_html_format(movie) for movie in movies]
+
+        # Join the formatted list into a long sting for replacing the placeholder text
+        html_content = "\n".join(movies_html_formatted_list)
+
+        # Load the HTML template
+        html_template = HTML_TEMPLATE_HANDLER.load_data()
+
+        # Replace the placeholder text with the formatted data
+        modified_html = html_template.replace(placeholder_title, html_output_title).replace(placeholder_grid,
+                                                                                            html_content)
+
+        HTML_OUTPUT_HANDLER.save_data(modified_html)
+
+        print(f"\nWebsite was generated {TxtClr.LG}successfully{TxtClr.RESET}.")
+
+    @staticmethod
+    def _dict_to_html_format(movie):
+        """Creates an HTML list item from a movie dictionary."""
+        type_symbol = {"movie": "🎬", "series": "📺"}.get(movie["media_type"], "🍿")
+
+        title = movie.get("title", "Unknown")
+        year = movie.get("year", "Unknown")
+        rating = movie.get("rating", "Unknown")
+        poster = movie.get("poster", "Unknown")
+        media_type = movie.get("media_type", "Unknown")
+
+        return f"""
+<li>
+    <div class="movie">
+        <img class="movie-poster"
+            src="{poster}"
+                     alt="Image of {title} poster"/>
+        <div class="movie-title">{title}</div>
+        <div class="movie-year">{year}</div>
+        <div class="movie-rating">Rating: {rating}</div>
+        <div class="media-type">{type_symbol}</div>
+    </div>
+</li>"""
 
     def run(self):
         """Main loop for the application."""
