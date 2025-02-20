@@ -1,21 +1,98 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Jon-Mark's Movie App</title>
-        <link rel="stylesheet" href="../static/styles.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>__TEMPLATE_TITLE__</title>
+    <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
-<header class="list-movies-title">
-    <h1>__TEMPLATE_TITLE__</h1>
-</header>
-<div>
-    <ol class="movie-grid">
-        __TEMPLATE_MOVIE_GRID__
-    </ol>
-</div>
+    <header>
+        <h1>__TEMPLATE_TITLE__</h1>
+        <button id="dark-mode-toggle">Dark Mode</button>
+    </header>
+
+    <div class="header-fade"></div>
+
+    <main>
+        <section class="movie-carousel">
+            <div class="movie-grid">
+                __TEMPLATE_MOVIE_GRID__
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const toggleButton = document.getElementById('dark-mode-toggle');
+        toggleButton.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        });
+
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+        // Add this script at the end of your body tag
+document.addEventListener('DOMContentLoaded', function() {
+    const movieGrid = document.querySelector('.movie-grid');
+    const movieCards = document.querySelectorAll('.movie-card');
+
+    // Create and add navigation buttons
+    const carousel = document.querySelector('.movie-carousel');
+
+    const prevButton = document.createElement('button');
+    prevButton.className = 'carousel-button prev';
+    prevButton.innerHTML = '←';
+
+    const nextButton = document.createElement('button');
+    nextButton.className = 'carousel-button next';
+    nextButton.innerHTML = '→';
+
+    carousel.appendChild(prevButton);
+    carousel.appendChild(nextButton);
+
+    // Calculate scroll amount (card width + gap)
+    const cardWidth = movieCards[0].offsetWidth;
+    const scrollAmount = cardWidth + 32; // 32px is the gap between cards
+
+    // Navigation functions
+    nextButton.addEventListener('click', () => {
+        movieGrid.scrollBy({ left: scrollAmount * 3, behavior: 'smooth' });
+    });
+
+    prevButton.addEventListener('click', () => {
+        movieGrid.scrollBy({ left: -scrollAmount * 3, behavior: 'smooth' });
+    });
+
+    // Auto-scroll functionality
+    let scrollInterval;
+    let isHovered = false;
+
+    function startAutoScroll() {
+        scrollInterval = setInterval(() => {
+            if (!isHovered) {
+                if (movieGrid.scrollLeft + movieGrid.clientWidth >= movieGrid.scrollWidth) {
+                    movieGrid.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    movieGrid.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            }
+        }, 3000);
+    }
+
+    // Pause on hover
+    movieGrid.addEventListener('mouseenter', () => {
+        isHovered = true;
+    });
+
+    movieGrid.addEventListener('mouseleave', () => {
+        isHovered = false;
+    });
+
+    // Start auto-scroll
+    startAutoScroll();
+});
+    </script>
+
 </body>
 </html>
