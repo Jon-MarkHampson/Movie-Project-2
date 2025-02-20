@@ -12,7 +12,7 @@
   --border-radius: 12px;
   --spacing-unit: 1rem;
   --header-height: 10vh;
-  --header-fade-height: 175px;
+  --header-fade-height: 150px;
   --button-size: 40px;
 }
 
@@ -53,43 +53,56 @@ header {
   position: sticky;
   top: 0;
   width: 100%;
-  z-index: 1000; /* Ensures it stays above other elements */
+  z-index: 1000;
   min-height: var(--header-height);
   padding: 1rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center; /* Heading centered on small screens */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  justify-content: center;
   margin-bottom: 1rem;
   text-align: center;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 50%, rgba(0, 0, 0, 0.7) 100%);
+  background: transparent;
   background-color: transparent;
-  color: var(--primary-bg); /* White text */
+  color: var(--primary-bg);
 }
 
 /* Dark Mode Header */
 .dark-mode header {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0.7) 100%);
+  background: transparent;
   background-color: transparent;
+    color: white;
 }
 
 /* Dedicated gradient fade below header */
 /* Light mode header fade */
 .header-fade {
   position: fixed;
-  top: 0px;
+  top: 0;
   left: 0;
   width: 100%;
   height: var(--header-fade-height);
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.7) 80%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 2, 2, 1) 0%,
+    rgba(2, 2, 2, 1) 30%,
+    rgba(2, 2, 2, 0.9) 60%,
+    rgba(2, 2, 2, 0.5) 80%,
+    rgba(2, 2, 2, 0) 100%
+  );
   pointer-events: none;
   z-index: 999;
 }
 
-/* Dark mode header fade */
 .dark-mode .header-fade {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.7) 40%, rgba(255, 255, 255, 0.2) 80%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(26, 26, 26, 1) 0%,
+    rgba(26, 26, 26, 1) 30%,
+    rgba(26, 26, 26, 0.9) 60%,
+    rgba(26, 26, 26, 0.5) 80%,
+    rgba(26, 26, 26, 0) 100%
+  );
 }
 
 
