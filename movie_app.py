@@ -14,19 +14,12 @@ OMDB_API_KEY = os.getenv("API_KEY")
 if not OMDB_API_KEY:
     raise ValueError("❌ Error: OMDB API key is missing! Please check your .env file.")
 
-HTML_TEMPLATE_FILE = "templates/index_template.html"
-HTML_TEMPLATE_HANDLER = FileHandlerFactory.get_handler(HTML_TEMPLATE_FILE)
+# Constants for directories
+TEMPLATE_DIR = "templates"
+OUTPUT_DIR = "dist"
 
-HTML_OUTPUT_FILE = "dist/index.html"
-HTML_OUTPUT_HANDLER = FileHandlerFactory.get_handler(HTML_OUTPUT_FILE)
-
-POSITIVE_FILE = "positive_responses.json"
-POSITIVE_HANDLER = FileHandlerFactory.get_handler(POSITIVE_FILE)
-
-# Extract the positive responses list inside the JSON file correctly
-POSITIVE_RESPONSES = set(
-    response.strip().lower() for response in POSITIVE_HANDLER.load_data().get("positive_responses", [])
-)
+# Creates output directory only if it doesn't already exist
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # OMDb base url
 OMDB_URL = "https://www.omdbapi.com/"
@@ -548,55 +541,51 @@ class MovieApp:
 
     # Menu item 10.
     def _command_generate_website(self):
-        """Creates a website based on the content of the database."""
+        """Creates a modern, responsive website from the movie database."""
 
-        html_output_title = "JON-MARK'S FAVOURITE MOVIES & TV"
+        html_template_file = f"{TEMPLATE_DIR}/index_template.html"
+        html_template_handler = FileHandlerFactory.get_handler(html_template_file)
+
+        html_output_file = f"{OUTPUT_DIR}/index.html"
+        html_output_handler = FileHandlerFactory.get_handler(html_output_file)
+
+        html_output_title = "Jon-Mark's Movies & TV Shows"
         placeholder_title = "__TEMPLATE_TITLE__"
         placeholder_grid = "__TEMPLATE_MOVIE_GRID__"
 
-        # Load the movies from storage
+        # Load movies from storage
         movies = self._storage.list_movies()
 
-        # Create a list HTML formatted items from movies
+        # Generate HTML for each movie
         movies_html_formatted_list = [self._dict_to_html_format(movie) for movie in movies]
-
-        # Join the formatted list into a long sting for replacing the placeholder text
         html_content = "\n".join(movies_html_formatted_list)
 
-        # Load the HTML template
-        html_template = HTML_TEMPLATE_HANDLER.load_data()
+        # Load HTML template
+        html_template = html_template_handler.load_data()
 
-        # Replace the placeholder text with the formatted data
-        modified_html = html_template.replace(placeholder_title, html_output_title).replace(placeholder_grid,
-                                                                                            html_content)
+        # Replace placeholders
+        modified_html = html_template.replace(placeholder_title, html_output_title)
+        modified_html = modified_html.replace(placeholder_grid, html_content)
 
-        HTML_OUTPUT_HANDLER.save_data(modified_html)
+        # Save the updated HTML
+        html_output_handler.save_data(modified_html)
 
         print(f"\nWebsite was generated {TxtClr.LG}successfully{TxtClr.RESET}.")
 
     @staticmethod
     def _dict_to_html_format(movie):
-        """Creates an HTML list item from a movie dictionary."""
+        """Creates a modern HTML card for a movie."""
         type_symbol = {"movie": "🎬", "series": "📺"}.get(movie["media_type"], "🍿")
 
-        title = movie.get("title", "Unknown")
-        year = movie.get("year", "Unknown")
-        rating = movie.get("rating", "Unknown")
-        poster = movie.get("poster", "Unknown")
-        media_type = movie.get("media_type", "Unknown")
-
-        return f"""
-<li>
-    <div class="movie">
-        <img class="movie-poster"
-            src="{poster}"
-                     alt="Image of {title} poster"/>
-        <div class="movie-title">{title}</div>
-        <div class="movie-year">{year}</div>
-        <div class="movie-rating">Rating: {rating}</div>
-        <div class="media-type">{type_symbol}</div>
-    </div>
-</li>"""
+        return f'''
+        <div class="movie-card">
+            <img class="movie-poster" src="{movie["poster"]}" alt="{movie["title"]} poster">
+            <div class="movie-info">
+                <h3>{movie["title"]} {type_symbol}</h3>
+                <p>{movie["year"]} • ⭐ {movie["rating"]}</p>
+            </div>
+        </div>
+        '''
 
     def run(self):
         """Main loop for the application."""
