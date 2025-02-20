@@ -17,15 +17,16 @@ Author: Jon-Mark
 Date: February 2025
 """
 
-from storage_json import StorageJson
+from storage import StorageJson
 from movie_app import MovieApp
 
 
 def main():
     """Initializes storage and runs the MovieApp."""
-    storage = StorageJson('movie_database.json')
+    storage = StorageJson('data/movie_database.json')
     movie_app = MovieApp(storage)
     movie_app.run()
+
 
 if __name__ == "__main__":
     main()

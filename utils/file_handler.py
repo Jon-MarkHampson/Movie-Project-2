@@ -2,7 +2,7 @@ import json
 import csv
 import os
 from abc import ABC, abstractmethod
-from text_colour_helper import TextColors as TxtClr
+from .text_colour_helper import TextColors as TxtClr
 
 
 class BaseFileHandler(ABC):
@@ -190,13 +190,13 @@ def main():
     """Main function for testing file handlers."""
 
     # Test HTML Handling
-    html_file = "test.html"
+    html_file = "../tests/test.html"
     html_handler = FileHandlerFactory.get_handler(html_file)
     html_handler.save_data("<html><body><h1>Hello World</h1></body></html>")
     print("✅ HTML Loaded:", html_handler.load_data())
 
     # Test JSON Handling
-    json_file = "test.json"
+    json_file = "../tests/test.json"
     json_handler = FileHandlerFactory.get_handler(json_file)
 
     dummy_json = {"movies": [{"title": "Matrix", "year": 1999}, {"title": "Dune", "year": 2021}]}
@@ -208,7 +208,7 @@ def main():
     json_handler.save_data(loaded_json)
 
     # Test CSV Handling
-    csv_file = "test.csv"
+    csv_file = "../tests/test.csv"
     csv_handler = FileHandlerFactory.get_handler(csv_file)
 
     dummy_csv = [
@@ -223,7 +223,7 @@ def main():
     csv_handler.save_data(loaded_csv)
 
     # Test TXT Handling
-    txt_file = "test.txt"
+    txt_file = "../tests/test.txt"
     txt_handler = FileHandlerFactory.get_handler(txt_file)
 
     dummy_txt = ["hello", "world", "python", "file handling"]
@@ -235,7 +235,7 @@ def main():
     txt_handler.save_data(loaded_txt)
 
     # Test Binary File Handling
-    binary_file = "test.bin"
+    binary_file = "../tests/test.bin"
     binary_handler = FileHandlerFactory.get_handler(binary_file)
 
     dummy_binary_data = b"\x00\x01\x02\x03\x04\x05HelloBinary"

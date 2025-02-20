@@ -3,9 +3,10 @@ import statistics
 import random
 import requests
 from dotenv import load_dotenv
-from file_handler import FileHandlerFactory
-from user_input_handler import UserInputHandler
-from text_colour_helper import TextColors as TxtClr
+from storage import StorageJson
+from utils import FileHandlerFactory
+from utils import UserInputHandler
+from utils import TextColors as TxtClr
 
 # Load API key from .env file
 load_dotenv()
@@ -29,7 +30,7 @@ class MovieApp:
     def __init__(self, storage):
         self._storage = storage
         self.running = True
-        self.user_input = UserInputHandler()
+        self.user_input = UserInputHandler
         self._dispatcher_menu = {
             "0": self._command_exit_program,
             "1": self._command_list_movies,
@@ -226,7 +227,7 @@ class MovieApp:
 
             # If a match was found, confirm deletion, otherwise ask if the user wants to attempt to delete another title
             if matched_title:
-                confirm = UserInputHandler.confirm_action(
+                confirm = self.user_input.confirm_action(
                     f"Are you sure you want to delete '{TxtClr.LY}{matched_title.title()}{TxtClr.RESET}'?")
                 if confirm:
                     self._storage.delete_movie(matched_title)
@@ -453,7 +454,7 @@ class MovieApp:
         self._convert_movies_dict_string_values_to_numbers(movies)
 
         # Ask user for sorting preference
-        order_choice = UserInputHandler.confirm_action("Would you like to view movies in chronological order?")
+        order_choice = self.user_input.confirm_action("Would you like to view movies in chronological order?")
 
         if order_choice:
             # Oldest to newest
@@ -601,9 +602,7 @@ class MovieApp:
 
 
 def main():
-    from storage_json import StorageJson
-
-    storage = StorageJson('movie_database.json')
+    storage = StorageJson('data/movie_database.json')
     movie_app = MovieApp(storage)
     movie_app.run()
 

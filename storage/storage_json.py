@@ -1,5 +1,5 @@
-from file_handler import FileHandlerFactory
-from istorage import IStorage
+from utils.file_handler import FileHandlerFactory
+from .istorage import IStorage
 
 
 class StorageJson(IStorage):
@@ -70,7 +70,7 @@ class StorageJson(IStorage):
 
 def main():
     """Creates a test instance of StorageJson and performs CRUD operations."""
-    storage = StorageJson("test_movie_database.json")
+    storage = StorageJson("../tests/test_movie_database.json")
 
     # List movies before any modifications
     print("\n🎬 Initial Movie List:")

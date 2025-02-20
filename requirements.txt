@@ -1,5 +1,4 @@
-datetime
-random
+requests
 statistics
 colorama
 python-dotenv

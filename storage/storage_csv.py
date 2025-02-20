@@ -1,5 +1,5 @@
-from file_handler import FileHandlerFactory
-from istorage import IStorage
+from utils import FileHandlerFactory
+from storage import IStorage
 
 
 class StorageCsv(IStorage):
@@ -70,7 +70,7 @@ class StorageCsv(IStorage):
 
 def main():
     """Creates a test instance of StorageCsv and lists movies."""
-    storage = StorageCsv("test_movie_database.csv")
+    storage = StorageCsv("../tests/test_movie_database.csv")
 
     # List movies before any modifications
     print("\n🎬 Initial Movie List:")

@@ -1,16 +1,48 @@
+import os
 import difflib
-from file_handler import FileHandlerFactory
-from text_colour_helper import TextColors as TxtClr
+from utils import FileHandlerFactory
+from utils import TextColors as TxtClr
 
-# Load positive responses
-POSITIVE_FILE = "positive_responses.json"
+
+POSITIVE_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "positive_responses.json")
+
+print("Absolute POSITIVE_FILE path:", POSITIVE_FILE)
+print("File exists?", os.path.exists(POSITIVE_FILE))
+
+
+# POSITIVE_FILE = "../data/positive_responses.json"
 POSITIVE_HANDLER = FileHandlerFactory.get_handler(POSITIVE_FILE)
-POSITIVE_RESPONSES = set(
-    response.strip().lower() for response in POSITIVE_HANDLER.load_data().get("positive_responses", []))
+
+
+# print("Checking file path:", os.path.abspath(POSITIVE_FILE))  # Debug print
+# print("Raw JSON data:", POSITIVE_HANDLER.load_data())  # Debug print
 
 
 class UserInputHandler:
     """Handles user input validation for MovieApp."""
+
+    # Load the positive responses as a class variable (shared across instances)
+    _POSITIVE_RESPONSES = set(
+        response.strip().lower() for response in POSITIVE_HANDLER.load_data().get("positive_responses", [])
+    )
+
+    # print("Loaded _POSITIVE_RESPONSES:", _POSITIVE_RESPONSES)  # Debug print
+
+    @classmethod
+    def confirm_action(cls, prompt):
+        """Asks the user to confirm an action with (Y/N)."""
+        # print(cls._POSITIVE_RESPONSES)  # Use cls instead of self
+        while True:
+            response = input(f"\n{prompt} (Y / N): ").strip().lower()
+            if not response:
+                print(f"{TxtClr.LY}Operation cancelled.{TxtClr.RESET}")
+                return False
+            if response in cls._POSITIVE_RESPONSES:
+                return True
+            elif response in {"no", "n"}:
+                return False
+            else:
+                print(f"{TxtClr.LR}Invalid input. Please enter Y or N.{TxtClr.RESET}")
 
     @staticmethod
     def get_non_empty_input(prompt, cancel_message="Operation cancelled."):
@@ -21,21 +53,6 @@ class UserInputHandler:
                 print(f"{TxtClr.LY}{cancel_message}{TxtClr.RESET}")
                 return None
             return user_input
-
-    @staticmethod
-    def confirm_action(prompt):
-        """Asks the user to confirm an action with (Y/N)."""
-        while True:
-            response = input(f"\n{prompt} (Y / N): ").strip().lower()
-            if not response:
-                print(f"{TxtClr.LY}Operation cancelled.{TxtClr.RESET}")
-                return False
-            if response in POSITIVE_RESPONSES:
-                return True
-            elif response in {"no", "n"}:
-                return False
-            else:
-                print(f"{TxtClr.LR}Invalid input. Please enter Y or N.{TxtClr.RESET}")
 
     @staticmethod
     def get_best_match(user_input, options):
@@ -106,3 +123,13 @@ class UserInputHandler:
                 print(f"{TxtClr.LR}Error: Value must be between {min_value} and {max_value}.{TxtClr.RESET}")
             except ValueError:
                 print(f"{TxtClr.LR}Invalid input! Please enter a valid number.{TxtClr.RESET}")
+
+
+def main():
+    print("Testing POSITIVE_RESPONSES loading...")
+    # Access class attribute
+    print("Loaded responses:", UserInputHandler._POSITIVE_RESPONSES)
+
+
+if __name__ == "__main__":
+    main()

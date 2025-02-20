@@ -272,6 +272,27 @@
             "rating": "N/A",
             "poster": "https://m.media-amazon.com/images/M/MV5BNDc3MjU2NDEtN2Q0OC00NTM4LTkwNzctZTI2NTk3ZDQ5OWUxXkEyXkFqcGdeQXVyOTM5NjQ0Mjg@._V1_SX300.jpg",
             "media_type": "movie"
+        },
+        {
+            "title": "Free Willy",
+            "year": "1993",
+            "rating": "6.0",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNjY4NDJhOTMtZmVjMC00Njk5LThjOWItMjg4NDcxMmNkODM3XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Ultimate 'WALL-E' Recap Cartoon",
+            "year": "2022",
+            "rating": "N/A",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTY5Yjc1YzUtMjkxMS00YTY3LThkOTAtZGI0ODFlN2Y3OGJjXkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
+        },
+        {
+            "title": "The Matrix Reloaded",
+            "year": "2003",
+            "rating": "7.2",
+            "poster": "https://m.media-amazon.com/images/M/MV5BNjAxYjkxNjktYTU0YS00NjFhLWIyMDEtMzEzMTJjMzRkMzQ1XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
         }
     ]
 }
