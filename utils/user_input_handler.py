@@ -3,19 +3,8 @@ import difflib
 from utils import FileHandlerFactory
 from utils import TextColors as TxtClr
 
-
 POSITIVE_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "positive_responses.json")
-
-print("Absolute POSITIVE_FILE path:", POSITIVE_FILE)
-print("File exists?", os.path.exists(POSITIVE_FILE))
-
-
-# POSITIVE_FILE = "../data/positive_responses.json"
 POSITIVE_HANDLER = FileHandlerFactory.get_handler(POSITIVE_FILE)
-
-
-# print("Checking file path:", os.path.abspath(POSITIVE_FILE))  # Debug print
-# print("Raw JSON data:", POSITIVE_HANDLER.load_data())  # Debug print
 
 
 class UserInputHandler:
@@ -26,12 +15,10 @@ class UserInputHandler:
         response.strip().lower() for response in POSITIVE_HANDLER.load_data().get("positive_responses", [])
     )
 
-    # print("Loaded _POSITIVE_RESPONSES:", _POSITIVE_RESPONSES)  # Debug print
-
     @classmethod
     def confirm_action(cls, prompt):
         """Asks the user to confirm an action with (Y/N)."""
-        # print(cls._POSITIVE_RESPONSES)  # Use cls instead of self
+
         while True:
             response = input(f"\n{prompt} (Y / N): ").strip().lower()
             if not response:
