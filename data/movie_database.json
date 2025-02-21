@@ -293,6 +293,13 @@
             "rating": "7.2",
             "poster": "https://m.media-amazon.com/images/M/MV5BNjAxYjkxNjktYTU0YS00NjFhLWIyMDEtMzEzMTJjMzRkMzQ1XkEyXkFqcGc@._V1_SX300.jpg",
             "media_type": "movie"
+        },
+        {
+            "title": "Tenet",
+            "year": "2020",
+            "rating": "7.3",
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTU0ZjZlYTUtYzIwMC00ZmQzLWEwZTAtZWFhMWIwYjMxY2I3XkEyXkFqcGc@._V1_SX300.jpg",
+            "media_type": "movie"
         }
     ]
 }

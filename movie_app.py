@@ -4,9 +4,7 @@ import random
 import requests
 from dotenv import load_dotenv
 from storage import StorageJson
-from utils import FileHandlerFactory
-from utils import UserInputHandler
-from utils import TextColors as TxtClr
+from utils import FileHandlerFactory, UserInputHandler, TextColors as TxtClr
 
 # Load API key from .env file
 load_dotenv()

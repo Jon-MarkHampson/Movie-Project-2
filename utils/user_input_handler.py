@@ -1,7 +1,6 @@
 import os
 import difflib
-from utils import FileHandlerFactory
-from utils import TextColors as TxtClr
+from utils import FileHandlerFactory, TextColors as TxtClr
 
 POSITIVE_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "positive_responses.json")
 POSITIVE_HANDLER = FileHandlerFactory.get_handler(POSITIVE_FILE)

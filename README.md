@@ -1,6 +1,17 @@
 # Movie App
 
-A Python-powered interactive movie database and website generator. This app allows users to store, manage, and display their favorite movies in a sleek, dynamically generated website with a modern UI.
+A Python-powered interactive movie database and website generator. This app allows users to store, manage, and display
+their favorite movies in a sleek, dynamically generated website with a modern UI.
+
+## **📖 Description**
+
+This project is a **Movie Management Application** that allows users to:
+
+- **Store movies** in either JSON or CSV format.
+- **Manage movies** by adding, deleting, sorting, and searching.
+- **Generate a website** from the movie database.
+- **Use a dynamic storage system** based on command-line arguments (`argparse`).
+- **Interact via the command line**, with support for creating **personalized** movie database.
 
 ## Features
 
@@ -13,7 +24,8 @@ A Python-powered interactive movie database and website generator. This app allo
 
 ## Demo
 
-![Movie App Screenshot](./screenshot.png)
+![Movie App Commands](https://cdn.discordapp.com/attachments/1339902346192486403/1342368831099633674/Screenshot_2025-02-21_at_06.32.40.png?ex=67b961e5&is=67b81065&hm=e6b84ac201de6085a6bb2c5a76fbbfd6236520c6f101939112ac35ce13d88f52&)
+![Movie App Screenshot List](https://cdn.discordapp.com/attachments/1339902346192486403/1342368804130263131/Screenshot_2025-02-21_at_06.33.11.png?ex=67b961de&is=67b8105e&hm=ec5e04ff04351230d2f47766fdc4e523ef4b9581ecf4bf13d94204648a3ccb40&)
 
 ## Installation
 
@@ -36,68 +48,118 @@ A Python-powered interactive movie database and website generator. This app allo
 ## Usage
 
 ### Running the App
+
 Run the Python script to manage your movies:
+Run main.py to load the **default database**
+OSX:
+
    ```sh
-   python movie_app.py
+   python3 main.py
+   ```
+
+Windows:
+
+   ```sh
+   python main.py
+   ```
+
+**Add an argument create a new JSON or CSV database:**
+
+   ```sh
+   python3 main.py <your-name-movie-database>.json
    ```
 
 ### Available Commands
+
+- `Exit Program` - Gracefully exits the program.
 - `List Movies` – Displays all stored movies.
 - `Add Movie` – Fetches details from OMDb and stores them.
 - `Delete Movie` – Removes a movie by title.
+- `Movie Stats` - Displays average movies rating and best / worst movies.
+- `Random Movie` - Randomly selects a movie from the stored movies.
 - `Search Movie` – Finds movies based on user input.
+- `Movies Sorted By Rating` - Lists movies by rating in descending order.
+- `Movies Sorted By Year` - Displays movies sorted by release year, either from newest to oldest or in chronological
+  order.
 - `Filter Movies` – Filter by rating or release year.
 - `Generate Website` – Generates an HTML file in the `dist/` folder.
 
 ### Viewing Your Website
+
 Once generated, open:
+
    ```sh
    open dist/index.html
    ```
-   Or, for Windows:
+
+Or, for Windows:
+
    ```sh
    start dist/index.html
    ```
 
 ## File Structure
+
 ```
-movie-app/
-│-- dist/                # Generated HTML output (gitignored)
-│-- templates/           # HTML templates
-│   ├── index_template.html
-│-- movie_app.py         # Main application logic
-│-- storage_json.py      # JSON-based movie storage handler
-│-- file_handler.py      # File handling utility
-│-- text_colour_helper.py# CLI text formatting helper
-│-- user_input_handler.py# User input handling
-│-- .env                 # API key (gitignored)
-│-- requirements.txt     # Dependencies
-│-- README.md            # This file
+.
+├── LICENSE
+├── README.md
+├── __init__.py
+├── data
+│   ├── movie_database.csv
+│   ├── movie_database.json
+│   └── positive_responses.json
+├── dist # Git ignored
+│   └── index.html # Dynamically Generated Website 
+├── main.py
+├── movie_app.py
+├── requirements.txt
+├── static
+│   └── styles.css
+├── storage
+│   ├── __init__.py
+│   ├── istorage.py
+│   ├── storage_csv.py
+│   └── storage_json.py
+├── templates
+│   └── index_template.html
+└── utils
+    ├── __init__.py
+    ├── file_handler.py
+    ├── text_colour_helper.py
+    └── user_input_handler.py
+
 ```
 
 ## Customization
 
 ### Adjusting the UI
+
 - Modify `templates/index_template.html` to change the website structure.
 - Edit `styles.css` to tweak colors, gradients, and layouts.
 
 ### Dark Mode Support
+
 Dark mode is automatically toggled with the **Dark Mode** button.
 
 ## Known Issues
+
 - **Header Fade Effect**: Fine-tuned to ensure a seamless transition.
 - **Tablet View Adjustments**: Handled to prevent unwanted scrollbars.
 
 ## Future Enhancements
+
 - **Live Search Suggestions**
 - **Movie Sorting Options**
 - **User Authentication for Personalized Lists**
 
 ## License
+
 This project is open-source and available under the [MIT License](LICENSE).
 
 ## Author
-Developed by **Jon-Mark** with a passion for movies, Python, and sleek UI design.
+
+Developed by **Jon-Mark Hampson** with a passion for movies, Python, and sleek UI design.
 
 ---
 🎬 *Enjoy organizing and displaying your favorite movies in style!*

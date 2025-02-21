@@ -1,5 +1,5 @@
-from utils.file_handler import FileHandlerFactory
-from .istorage import IStorage
+from utils import FileHandlerFactory
+from storage import IStorage
 
 
 class StorageJson(IStorage):
