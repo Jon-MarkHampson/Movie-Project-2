@@ -46,7 +46,8 @@ class StorageJson(IStorage):
         if len(updated_movies) == len(movies):
             print(f"{title} not found in database.")
 
-        self.file_handler.save_data({"movies": updated_movies})  # Store back in correct format
+        # Store back in correct format
+        self.file_handler.save_data({"movies": updated_movies})
 
     def update_movie(self, title, note=None):
         """

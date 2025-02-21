@@ -36,8 +36,7 @@ class StorageCsv(IStorage):
         """
         movies = self.list_movies()
         movies.append(
-            {"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type,
-             "note": note or None})
+            {"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type, "country": country or None, "note": note or None})
         self.file_handler.save_data(movies)
 
     def delete_movie(self, title):
@@ -48,10 +47,19 @@ class StorageCsv(IStorage):
         movies = self.list_movies()
         updated_movies = [movie for movie in movies if movie["title"].lower() != title.lower()]
 
-        if len(updated_movies) == len(movies):
-            print(f"{title} not found in database.")
+        if len(updated_movies) == len(movies):  # No movie was removed
+            print(f"Movie '{title}' not found in database.")
+            return  # Exit early to avoid rewriting the same file
 
-        self.file_handler.save_data(updated_movies)
+        # Ensure CSV headers are preserved
+        if updated_movies:
+            self.file_handler.save_data(updated_movies)
+        else:
+            # If no movies remain, create an empty CSV file with just the headers
+            self.file_handler.save_data([{"title": "Title", "year": "Year", "rating": "Rating", "poster": "Poster",
+                                          "media_type": "Media Type", "country": "Country", "note": "Note"}])
+
+        print(f"Movie '{title}' has been successfully deleted!")
 
     def update_movie(self, title, note=None):
         """

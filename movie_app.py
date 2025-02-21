@@ -232,6 +232,10 @@ class MovieApp:
                 if confirm:
                     self._storage.delete_movie(matched_title)
                     print(f"\nMovie '{TxtClr.LY}{matched_title.title()}{TxtClr.RESET}' has been successfully deleted!")
+
+                    # Remove the title from available options
+                    all_titles.remove(matched_title.lower())
+                    del movie_titles[matched_title.lower()]
                 else:
                     print(f"\n{TxtClr.LY}Deletion cancelled.{TxtClr.RESET}")
 
