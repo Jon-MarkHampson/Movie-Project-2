@@ -72,7 +72,6 @@ class UserInputHandler:
                 # Adjust for 0-based index
                 return matches[selected_index - 1]
 
-            print(f"{TxtClr.LY}Search cancelled.{TxtClr.RESET}")
             return None
 
         # If no matches, suggest close matches instead

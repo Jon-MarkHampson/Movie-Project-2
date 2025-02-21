@@ -181,6 +181,36 @@ main {
   transition: transform var(--transition-speed);
 }
 
+.movie-card:hover {
+    transform: scale(1.05); /* Subtle zoom effect */
+}
+
+/* Remove default link styles for movie cards */
+.movie-link {
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Keep text color consistent */
+    display: block; /* Ensure full card is clickable */
+}
+
+
+.movie-note {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Dark semi-transparent background */
+    color: white;
+    padding: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease-in-out;
+}
+
+.movie-card:hover .movie-note {
+    opacity: 1; /* Show on hover */
+}
+
 .movie-poster {
   width: 100%;
   aspect-ratio: 2/3;

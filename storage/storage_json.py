@@ -16,9 +16,10 @@ class StorageJson(IStorage):
         Extracts the "movies" key from the JSON structure.
         """
         data = self.file_handler.load_data()
-        return data.get("movies", [])
+        movies = data.get("movies", [])
+        return movies
 
-    def add_movie(self, title, year, rating, poster=None, media_type="movie"):
+    def add_movie(self, title, year, rating, poster=None, media_type="movie", country=None, note=""):
         """
         Adds a movie to the database and saves it.
         Ensures the poster is stored properly (None if not provided).
@@ -29,7 +30,8 @@ class StorageJson(IStorage):
         poster = poster.strip() if poster else None
 
         movies.append(
-            {"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type})
+            {"title": title, "year": year, "rating": rating, "poster": poster or "", "media_type": media_type,
+             "country": country or None, "note": note or None})
         # Store back in correct format
         self.file_handler.save_data({"movies": movies})
 
@@ -46,31 +48,25 @@ class StorageJson(IStorage):
 
         self.file_handler.save_data({"movies": updated_movies})  # Store back in correct format
 
-    def update_movie(self, title, rating, poster=None, media_type="movie"):
+    def update_movie(self, title, note=None):
         """
-        Updates the rating and/or poster of a movie by title (case-insensitive).
-        If a poster is provided, it updates it; otherwise, it remains unchanged.
+        Updates the note of a movie by title (case-insensitive).
         """
         movies = self.list_movies()
 
         for movie in movies:
             if movie["title"].lower() == title.lower():
-                movie["rating"] = rating
-                # Update only if a new poster is provided
-                if poster is not None:
-                    movie["poster"] = poster.strip() if poster else None
-                movie["media_type"] = media_type
-                # Store back in correct format
+                movie["note"] = note
+                # Only update note if provided
+                if note is not None:
+                    movie["note"] = note if note else None
                 self.file_handler.save_data({"movies": movies})
-                print(f"Movie {title} has been successfully updated.")
                 return
-
-        print(f"{title} not found in database.")
 
 
 def main():
     """Creates a test instance of StorageJson and performs CRUD operations."""
-    storage = StorageJson("../tests/test_movie_database.json")
+    storage = StorageJson("../data/movie_database.json")
 
     # List movies before any modifications
     print("\n🎬 Initial Movie List:")
@@ -87,7 +83,7 @@ def main():
 
     # Update the test movie's rating
     print("\n🔄 Updating Test Movie Rating:")
-    storage.update_movie("Test Movie", 1.1)
+    storage.update_movie("Test Movie", "My Favourite Movie")
     movies = storage.list_movies()
     for movie in movies:
         print(movie)

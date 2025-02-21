@@ -2,3 +2,4 @@ requests
 statistics
 colorama
 python-dotenv
+country_converter

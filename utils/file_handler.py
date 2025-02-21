@@ -2,7 +2,7 @@ import json
 import csv
 import os
 from abc import ABC, abstractmethod
-from .text_colour_helper import TextColors as TxtClr
+from utils.text_colour_helper import TextColors as TxtClr
 
 
 class BaseFileHandler(ABC):

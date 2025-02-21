@@ -11,7 +11,10 @@ This project is a **Movie Management Application** that allows users to:
 - **Manage movies** by adding, deleting, sorting, and searching.
 - **Generate a website** from the movie database.
 - **Use a dynamic storage system** based on command-line arguments (`argparse`).
-- **Interact via the command line**, with support for creating **personalized** movie database.
+- **Interact via the command line**, with support for creating **personalized** movie databases.
+- **View country flags** for each movie's country of origin.
+- **Hover over movie cards** to see personal notes added by users.
+- **Click movie cards** to open their respective IMDb page.
 
 ## Features
 
@@ -21,6 +24,9 @@ This project is a **Movie Management Application** that allows users to:
 - **Dark Mode Support**: Toggle between light and dark themes.
 - **Responsive UI**: Optimized for desktop, tablet, and mobile views.
 - **Sticky Header & Fading Effect**: Smooth gradient transition between the header and content.
+- **Country Flags**: Displays flag icons for the movie's country.
+- **Movie Notes**: Hover over a movie card to reveal personal notes.
+- **Clickable Movie Cards**: Clicking a movie opens its IMDb page.
 
 ## Demo
 
@@ -75,6 +81,7 @@ Windows:
 - `List Movies` – Displays all stored movies.
 - `Add Movie` – Fetches details from OMDb and stores them.
 - `Delete Movie` – Removes a movie by title.
+- `Update Movie` - Add a note to a specified movie.
 - `Movie Stats` - Displays average movies rating and best / worst movies.
 - `Random Movie` - Randomly selects a movie from the stored movies.
 - `Search Movie` – Finds movies based on user input.

@@ -3,7 +3,8 @@ import statistics
 import random
 import requests
 from dotenv import load_dotenv
-from storage import StorageJson
+import country_converter as coco
+from storage import StorageJson, StorageCsv
 from utils import FileHandlerFactory, UserInputHandler, TextColors as TxtClr
 
 # Load API key from .env file
@@ -27,21 +28,21 @@ OMDB_URL = "https://www.omdbapi.com/"
 class MovieApp:
     def __init__(self, storage):
         self._storage = storage
-        self.running = True
-        self.user_input = UserInputHandler
+        self._running = True
+        self._user_input = UserInputHandler
         self._dispatcher_menu = {
             "0": self._command_exit_program,
             "1": self._command_list_movies,
             "2": self._command_add_movie,
             "3": self._command_delete_movie,
-            # "4": self._command_update_movie,
-            "4": self._command_movie_stats,
-            "5": self._command_random_movie,
-            "6": self._command_search_movie,
-            "7": self._command_movies_sorted_by_rating,
-            "8": self._command_movies_sorted_by_year,
-            "9": self._command_filter_movies,
-            "10": self._command_generate_website
+            "4": self._command_update_movie,
+            "5": self._command_movie_stats,
+            "6": self._command_random_movie,
+            "7": self._command_search_movie,
+            "8": self._command_movies_sorted_by_rating,
+            "9": self._command_movies_sorted_by_year,
+            "10": self._command_filter_movies,
+            "11": self._command_generate_website
         }
 
     @staticmethod
@@ -91,7 +92,7 @@ class MovieApp:
 
         print(f"\n{TxtClr.LG}Thank you for using the Movie App! Have a great day!{TxtClr.RESET}")
         print(f"{TxtClr.LC}Shutting down...{TxtClr.RESET}\n")
-        self.running = False
+        self._running = False
 
     # Menu item 1.
     def _command_list_movies(self):
@@ -108,7 +109,7 @@ class MovieApp:
         self._convert_movies_dict_string_values_to_numbers(movies)
 
         # Ask user if they want chronological sorting
-        chronological_order = self.user_input.confirm_action(
+        chronological_order = self._user_input.confirm_action(
             "Would you like to view the movies in chronological order?")
 
         if chronological_order:
@@ -133,14 +134,14 @@ class MovieApp:
 
         while True:
             # Prompt user for a title using UserInputHandler
-            user_title = UserInputHandler.get_non_empty_input("Enter movie or TV title (or press Enter to cancel):")
+            user_title = self._user_input.get_non_empty_input("Enter movie or TV title (or press Enter to cancel):")
             if not user_title:
                 return
 
             # Prevent duplicates
             if user_title.lower() in existing_titles:
                 print(f"The title '{TxtClr.LY}{user_title.title()}{TxtClr.RESET}' is already in the database!")
-                check_add_different_title = self.user_input.confirm_action(
+                check_add_different_title = self._user_input.confirm_action(
                     "Would you like to add a different title?")
                 if check_add_different_title:
                     # Prompt user again for a movie title
@@ -171,12 +172,13 @@ class MovieApp:
             # Extract movie/series required details
             title = movie_data.get("Title", "Unknown")
             year = movie_data.get("Year", "Unknown")
-            rating = movie_data.get("imdbRating", "N/A")
-            poster = movie_data.get("Poster", "N/A")
-            media_type = movie_data.get("Type", "movie")  # Default to 'movie'
+            rating = movie_data.get("imdbRating", "0.0")
+            poster = movie_data.get("Poster", "")
+            media_type = movie_data.get("Type", "movie")
+            country = movie_data.get("Country", "Unknown")
 
             # Store the movie/series using the storage class
-            self._storage.add_movie(title, year, rating, poster, media_type)
+            self._storage.add_movie(title, year, rating, poster, media_type, country, note=None)
 
             # Print out the successfully added movie
             formatted_movie = [
@@ -211,7 +213,7 @@ class MovieApp:
 
         while True:
             # Prompt user for a title using UserInputHandler
-            user_title = UserInputHandler.get_non_empty_input("Enter movie or TV title (or press Enter to cancel):")
+            user_title = self._user_input.get_non_empty_input("Enter movie or TV title (or press Enter to cancel):")
             if not user_title:
                 return
 
@@ -221,22 +223,20 @@ class MovieApp:
                 # break
             else:
                 # Suggest best matches
-                matched_title = UserInputHandler.get_best_match(user_title, all_titles)
+                matched_title = self._user_input.get_best_match(user_title, all_titles)
 
             # If a match was found, confirm deletion, otherwise ask if the user wants to attempt to delete another title
             if matched_title:
-                confirm = self.user_input.confirm_action(
+                confirm = self._user_input.confirm_action(
                     f"Are you sure you want to delete '{TxtClr.LY}{matched_title.title()}{TxtClr.RESET}'?")
                 if confirm:
                     self._storage.delete_movie(matched_title)
                     print(f"\nMovie '{TxtClr.LY}{matched_title.title()}{TxtClr.RESET}' has been successfully deleted!")
                 else:
                     print(f"\n{TxtClr.LY}Deletion cancelled.{TxtClr.RESET}")
-            else:
-                print(f"{TxtClr.LR}No close matches found.{TxtClr.RESET}")
 
             # Check if user wants to delete a different title
-            check_delete_different_title = self.user_input.confirm_action(
+            check_delete_different_title = self._user_input.confirm_action(
                 "Would you like to delete a different title?")
             if check_delete_different_title:
                 # Prompt user again for a movie title
@@ -245,72 +245,74 @@ class MovieApp:
                 return
 
     # Menu item 4.
-    # def _command_update_movie(self):
-    #     """Update the rating of an existing movie with best-match suggestions and exit handling."""
-    #     self._print_section_header(" UPDATE MOVIE ", TxtClr.LM)
-    #
-    #     movies = self._storage.list_movies()
-    #
-    #     if not movies:
-    #         print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
-    #         return
-    #
-    #     # Create a dictionary of movie titles (case-insensitive) for lookups
-    #     movie_titles = {movie["title"].lower(): movie["title"] for movie in movies}
-    #     all_titles = list(movie_titles.keys())
-    #
-    #     while True:
-    #         title_input = input("\nEnter the movie title to update (or press Enter to cancel): ").strip().lower()
-    #
-    #         if not title_input:
-    #             # Exit the function if user presses Enter
-    #             print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
-    #             return
-    #
-    #         # Check for an exact match
-    #         if title_input in movie_titles:
-    #             matched_title = movie_titles[title_input]
-    #             break
-    #
-    #         # Suggest best matches
-    #         close_matches = difflib.get_close_matches(title_input, all_titles, n=3, cutoff=0.5)
-    #         if close_matches:
-    #             print(f"{TxtClr.LY}Did you mean:{TxtClr.RESET}")
-    #             for match in close_matches:
-    #                 print(f"- {TxtClr.LG}{movie_titles[match]}{TxtClr.RESET}")
-    #
-    #             retry = input("\nEnter the correct movie title (or press Enter to cancel): ").strip().lower()
-    #             if not retry:
-    #                 # Exit function if user presses Enter
-    #                 print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
-    #                 return
-    #             elif retry in movie_titles:
-    #                 matched_title = movie_titles[retry]
-    #                 break
-    #         else:
-    #             print(f"{TxtClr.LR}No close matches found.{TxtClr.RESET}")
-    #             retry = input("\nWould you like to try again? (Y / N): ").strip().lower()
-    #             if retry not in POSITIVE_RESPONSES:
-    #                 # Exit function if user doesn't want to retry
-    #                 print(f"{TxtClr.LY}Update cancelled.{TxtClr.RESET}")
-    #                 return
-    #
-    #     # Get new rating input
-    #     while True:
-    #         try:
-    #             rating = float(input(f"\nEnter new rating for '{matched_title}' (0-10): ").strip())
-    #             if 0 <= rating <= 10:
-    #                 rating = round(rating, 1)
-    #                 break
-    #             print(f"{TxtClr.LR}Rating must be between 0 and 10.{TxtClr.RESET}")
-    #         except ValueError:
-    #             print(f"{TxtClr.LR}Invalid input! Enter a valid rating.{TxtClr.RESET}")
-    #
-    #     # Update the movie rating in storage
-    #     self._storage.update_movie(matched_title, rating)
-    #     print(f"\n{TxtClr.LG}Movie '{matched_title}' rating updated to {rating} successfully!{TxtClr.RESET}")
+    def _command_update_movie(self):
+        """Update the note of an existing movie with best-match suggestions and exit handling."""
+        self._print_section_header(" UPDATE MOVIE ", TxtClr.LM)
 
-    # Menu item 4.
+        movies = self._storage.list_movies()
+
+        if not movies:
+            print(f"{TxtClr.LR}No movies found in the database.{TxtClr.RESET}")
+            return
+
+        # Create a dictionary of movie titles (case-insensitive) for lookups
+        movie_lookup = {movie["title"].lower(): movie for movie in movies}
+        all_titles = list(movie_lookup.keys())
+
+        while True:
+            # Prompt user for a title using UserInputHandler
+            user_title = self._user_input.get_non_empty_input(
+                "Enter the title of the movie or TV show you want to add a note to (or press Enter to cancel):"
+            )
+            if not user_title:
+                return
+
+            # Check for an exact match
+            if user_title in movie_lookup:
+                matched_title = movie_lookup[user_title]["title"]
+            else:
+                # Suggest best matches
+                matched_title = self._user_input.get_best_match(user_title, all_titles)
+                if not matched_title:
+                    print(f"{TxtClr.LR}No match found for '{user_title}'. Try again.{TxtClr.RESET}")
+                    continue  # Restart loop if no match is found
+
+            matched_movie = movie_lookup[matched_title.lower()]
+
+            # Get the current movie note if one exists
+            current_note = matched_movie.get("note", None)
+
+            # Display current note or inform user that there's none
+            if current_note:
+                print(
+                    f"Current note for '{TxtClr.LY}{matched_movie['title']}{TxtClr.RESET}': {TxtClr.LG}{current_note}{TxtClr.RESET}"
+                )
+            else:
+                print(f"{TxtClr.LG}No existing note for{TxtClr.RESET} '{TxtClr.LY}{matched_movie['title']}{TxtClr.RESET}'.")
+
+            # Confirm if they want to proceed
+            confirm = self._user_input.confirm_action(
+                f"Are you sure you want to add a note to '{TxtClr.LY}{matched_movie['title']}{TxtClr.RESET}'?"
+            )
+
+            if confirm:
+                # Get new note
+                user_input_note = self._user_input.get_non_empty_input("Enter your note:")
+
+                # Update the movie note in storage
+                self._storage.update_movie(matched_movie["title"], user_input_note)
+
+                print(
+                    f"\n{TxtClr.LG}Added note: {TxtClr.LM}{user_input_note}{TxtClr.RESET} to movie '{TxtClr.LY}{matched_movie['title']}{TxtClr.RESET}' {TxtClr.LG}successfully!{TxtClr.RESET}"
+                )
+
+            # Check if user wants to update another movie
+            check_update_different_title = self._user_input.confirm_action(
+                "Would you like to update a different title?")
+            if not check_update_different_title:
+                return
+
+    # Menu item 5.
     def _command_movie_stats(self):
         """
         Calculate and display average and median ratings.
@@ -345,7 +347,7 @@ class MovieApp:
 
         print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
-    # Menu item 5.
+    # Menu item 6.
     def _command_random_movie(self):
         """Selects and displays a random movie from the database."""
         self._print_section_header(" RANDOM MOVIE ", TxtClr.LG)
@@ -364,7 +366,7 @@ class MovieApp:
         self._print_movie_or_movie_list(random_movie)
         print("Enjoy the show!\n")
 
-    # Menu item 6.
+    # Menu item 7.
     def _command_search_movie(self):
         """Search for a movie with best-match suggestions."""
         self._print_section_header(" SEARCH MOVIE ", TxtClr.LM)
@@ -381,7 +383,7 @@ class MovieApp:
 
         while True:
             # Prompt user for a title using UserInputHandler
-            user_title = UserInputHandler.get_non_empty_input(
+            user_title = self._user_input.get_non_empty_input(
                 "Enter movie or TV title to search (or press Enter to cancel):")
             if not user_title:
                 return
@@ -392,7 +394,7 @@ class MovieApp:
                 # break
             else:
                 # Suggest best matches
-                matched_title = UserInputHandler.get_best_match(user_title, all_titles)
+                matched_title = self._user_input.get_best_match(user_title, all_titles)
 
             if matched_title:
                 # Fetch the matched movie info from the list of movie dictionaries
@@ -406,7 +408,7 @@ class MovieApp:
                 print(f"{TxtClr.LR}No close matches found.{TxtClr.RESET}")
 
             # Check if user wants to delete a different title
-            check_search_different_title = self.user_input.confirm_action(
+            check_search_different_title = self._user_input.confirm_action(
                 "Would you like to search for a different title?")
             if check_search_different_title:
                 # Prompt user again for a movie title
@@ -414,7 +416,7 @@ class MovieApp:
             else:
                 return
 
-    # Menu item 7.
+    # Menu item 8.
     def _command_movies_sorted_by_rating(self):
         """Displays movies sorted by rating from highest to lowest."""
         self._print_section_header(" MOVIES SORTED BY RATING ", TxtClr.LG)
@@ -437,7 +439,7 @@ class MovieApp:
         self._print_movie_or_movie_list(sorted_movies)
         print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
-    # Menu item 8.
+    # Menu item 9.
     def _command_movies_sorted_by_year(self):
         """Displays movies sorted by year in chronological or reverse order."""
         self._print_section_header(" MOVIES SORTED BY YEAR ", TxtClr.M)
@@ -452,7 +454,7 @@ class MovieApp:
         self._convert_movies_dict_string_values_to_numbers(movies)
 
         # Ask user for sorting preference
-        order_choice = self.user_input.confirm_action("Would you like to view movies in chronological order?")
+        order_choice = self._user_input.confirm_action("Would you like to view movies in chronological order?")
 
         if order_choice:
             # Oldest to newest
@@ -467,7 +469,7 @@ class MovieApp:
         self._print_movie_or_movie_list(sorted_movies)
         print(f"\n{TxtClr.LC}{'=' * 40}{TxtClr.RESET}")
 
-    # Menu item 9.
+    # Menu item 10.
     def _command_filter_movies(self):
         """Filters movies based on user-defined year range or rating threshold."""
         self._print_section_header(" FILTER MOVIES ", TxtClr.LB)
@@ -489,7 +491,7 @@ class MovieApp:
             print(f"{TxtClr.LG}2.{TxtClr.RESET} Filter by rating threshold")
 
             # Get filter choice
-            choice = UserInputHandler.get_non_empty_input(
+            choice = self._user_input.get_non_empty_input(
                 "Choose a filter (or press Enter to cancel):",
                 cancel_message="Filtering cancelled."
             )
@@ -504,12 +506,12 @@ class MovieApp:
 
             if choice == "1":
                 # Get year range
-                min_year = UserInputHandler.get_valid_numeric_input("Enter start year:", 1800, 2100)
+                min_year = self._user_input.get_valid_numeric_input("Enter start year:", 1800, 2100)
                 if min_year is None:
                     # Exit if canceled
                     return
 
-                max_year = UserInputHandler.get_valid_numeric_input("Enter end year:", min_year, 2100)
+                max_year = self._user_input.get_valid_numeric_input("Enter end year:", min_year, 2100)
                 if max_year is None:
                     # Exit if canceled
                     return
@@ -519,7 +521,7 @@ class MovieApp:
 
             elif choice == "2":
                 # Get rating threshold
-                min_rating = UserInputHandler.get_valid_numeric_input("Enter minimum rating (0-10):", 0, 10, float)
+                min_rating = self._user_input.get_valid_numeric_input("Enter minimum rating (0-10):", 0, 10, float)
                 if min_rating is None:
                     # Exit if canceled
                     return
@@ -538,7 +540,7 @@ class MovieApp:
             # Exit after displaying results
             return
 
-    # Menu item 10.
+    # Menu item 11.
     def _command_generate_website(self):
         """Creates a modern, responsive website from the movie database."""
 
@@ -573,23 +575,51 @@ class MovieApp:
 
     @staticmethod
     def _dict_to_html_format(movie):
-        """Creates a modern HTML card for a movie."""
-        type_symbol = {"movie": "🎬", "series": "📺"}.get(movie["media_type"], "🍿")
+        """Creates a modern HTML card for a movie with country flags and hover notes."""
+
+        type_symbol = {"movie": "🎬", "series": "📺"}.get(movie.get("media_type", ""), "🍿")
+        movie_note = movie.get("note", "").strip()
+
+        # Process country flags
+        country_names = movie.get("country", "").split(", ") if movie.get("country") else []
+
+        iso2_codes = []
+        if country_names:
+            for country in country_names:
+                try:
+                    iso2_code = coco.convert(names=country.strip(), to='ISO2')
+                    iso2_codes.append(iso2_code.lower())
+                except Exception as e:
+                    print(f"Warning: Could not convert '{country}' to ISO2 - {e}")
+                    # Avoid index errors
+                    iso2_codes.append("")
+
+        # Generate flag image elements (use fallback text if flag is missing)
+        country_flags_html = " ".join(
+            f'<img src="https://flagcdn.com/16x12/{code}.png" width="16" height="12" alt="{country.strip()}">' if code else country.strip()
+            for code, country in zip(iso2_codes, country_names)
+        )
+
+        # Construct OMDb search URL (replace spaces with '+')
+        imdb_url = f"https://www.imdb.com/find?q={movie['title'].replace(' ', '+')}"
 
         return f'''
-        <div class="movie-card">
-            <img class="movie-poster" src="{movie["poster"]}" alt="{movie["title"]} poster">
-            <div class="movie-info">
-                <h3>{movie["title"]} {type_symbol}</h3>
-                <p>{movie["year"]} • ⭐ {movie["rating"]}</p>
+        <a href="{imdb_url}" target="_blank" class="movie-link">
+            <div class="movie-card">
+                <img class="movie-poster" src="{movie["poster"]}" alt="{movie["title"]} poster">
+                <div class="movie-info">
+                    <h3>{movie["title"]} {type_symbol}</h3>
+                    <p>{movie["year"]} • ⭐ {movie["rating"]} • {country_flags_html}</p>
+                </div>
+                {f'<div class="movie-note">{movie_note}</div>' if movie_note else ''}
             </div>
-        </div>
+        </a>
         '''
 
     def run(self):
         """Main loop for the application."""
 
-        while self.running:  # Uses the initialized flag
+        while self._running:  # Uses the initialized flag
             self._print_menu(self._dispatcher_menu)
             choice = input("\nEnter your choice: ").strip()
 
