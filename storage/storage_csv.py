@@ -1,3 +1,4 @@
+import csv
 from utils import FileHandlerFactory
 from storage import IStorage
 
@@ -47,19 +48,20 @@ class StorageCsv(IStorage):
         movies = self.list_movies()
         updated_movies = [movie for movie in movies if movie["title"].lower() != title.lower()]
 
-        if len(updated_movies) == len(movies):  # No movie was removed
+        # No movie was removed
+        if len(updated_movies) == len(movies):
             print(f"Movie '{title}' not found in database.")
-            return  # Exit early to avoid rewriting the same file
+            return
 
-        # Ensure CSV headers are preserved
         if updated_movies:
+            # Normal case: Save updated movies
             self.file_handler.save_data(updated_movies)
         else:
-            # If no movies remain, create an empty CSV file with just the headers
-            self.file_handler.save_data([{"title": "Title", "year": "Year", "rating": "Rating", "poster": "Poster",
-                                          "media_type": "Media Type", "country": "Country", "note": "Note"}])
-
-        print(f"Movie '{title}' has been successfully deleted!")
+            # If no movies remain, re-write the file with only headers
+            headers = ["title", "year", "rating", "poster", "media_type", "country", "note"]
+            with open(self.file_path, "w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=headers)
+                writer.writeheader()
 
     def update_movie(self, title, note=None):
         """
