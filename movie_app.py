@@ -144,57 +144,63 @@ class MovieApp:
                 check_add_different_title = self._user_input.confirm_action(
                     "Would you like to add a different title?")
                 if check_add_different_title:
-                    # Prompt user again for a movie title
+                    continue  # Prompt user again
+                else:
+                    return  # Exit the function
+
+            # Format title for use in URL
+            formatted_user_title = user_title.replace(" ", "+")
+            url = f"{OMDB_URL}?t={formatted_user_title}&apikey={OMDB_API_KEY}"
+
+            try:
+                # Fetch movie details from OMDb API
+                response = requests.get(url, timeout=5)
+                response.raise_for_status()
+                movie_data = response.json()
+
+                # Check if movie was not found
+                if "Error" in movie_data:
+                    print(
+                        f"{TxtClr.LR}ERROR!{TxtClr.RESET} Title: {TxtClr.LY}{user_title}{TxtClr.RESET} - {movie_data['Error']}")
+                    check_add_different_title = self._user_input.confirm_action(
+                        "Would you like to add a different title?")
+                    if check_add_different_title:
+                        continue
+                    else:
+                        return
+
+                # Extract movie details
+                title = movie_data.get("Title", "Unknown")
+                year = movie_data.get("Year", "Unknown")
+                rating = movie_data.get("imdbRating", "0.0")
+                poster = movie_data.get("Poster", "")
+                media_type = movie_data.get("Type", "movie")
+                country = movie_data.get("Country", "Unknown")
+
+                # Store the movie
+                self._storage.add_movie(title, year, rating, poster, media_type, country, note="")
+
+                # Print confirmation
+                formatted_movie = [
+                    {"title": title, "year": year, "rating": rating, "poster": poster, "media_type": media_type}]
+                print(f"\n{TxtClr.LG}Successfully added movie!{TxtClr.RESET}")
+                self._print_movie_or_movie_list(formatted_movie)
+
+                check_add_different_title = self._user_input.confirm_action(
+                    "Would you like to add a different title?")
+                if check_add_different_title:
                     continue
                 else:
                     return
 
-            break  # Valid input received, continue
-
-        # Format title for use in URL
-        formatted_user_title = user_title.replace(" ", "+")
-
-        # Fetch movie details from OMDb API
-        url = f"{OMDB_URL}?t={formatted_user_title}&apikey={OMDB_API_KEY}"
-
-        try:
-            # Timeout to prevent hanging
-            response = requests.get(url, timeout=5)
-            response.raise_for_status()  # Raise HTTP error for bad responses (4xx, 5xx)
-            movie_data = response.json()
-
-            # Check if movie was not found
-            if "Error" in movie_data:
-                print(
-                    f"{TxtClr.LR}ERROR!{TxtClr.RESET} Title: {TxtClr.LY}{user_title}{TxtClr.RESET} - {movie_data['Error']}")
-                return
-
-            # Extract movie/series required details
-            title = movie_data.get("Title", "Unknown")
-            year = movie_data.get("Year", "Unknown")
-            rating = movie_data.get("imdbRating", "0.0")
-            poster = movie_data.get("Poster", "")
-            media_type = movie_data.get("Type", "movie")
-            country = movie_data.get("Country", "Unknown")
-
-            # Store the movie/series using the storage class
-            self._storage.add_movie(title, year, rating, poster, media_type, country, note=None)
-
-            # Print out the successfully added movie
-            formatted_movie = [
-                {"title": title, "year": year, "rating": rating, "poster": poster, "media_type": media_type}
-            ]
-            print(f"\n{TxtClr.LG}Successfully added movie!{TxtClr.RESET}")
-            self._print_movie_or_movie_list(formatted_movie)
-
-        except requests.exceptions.ConnectionError:
-            print(f"{TxtClr.LR}Error: Unable to connect to OMDb API. Check your internet connection.{TxtClr.RESET}")
-        except requests.exceptions.Timeout:
-            print(f"{TxtClr.LR}Error: The request timed out. Try again later.{TxtClr.RESET}")
-        except requests.exceptions.HTTPError as http_err:
-            print(f"{TxtClr.LR}HTTP Error: {http_err}{TxtClr.RESET}")
-        except requests.exceptions.RequestException as req_err:
-            print(f"{TxtClr.LR}Request Error: {req_err}{TxtClr.RESET}")
+            except requests.exceptions.ConnectionError:
+                print(f"{TxtClr.LR}Error: Unable to connect to OMDb API. Check your internet connection.{TxtClr.RESET}")
+            except requests.exceptions.Timeout:
+                print(f"{TxtClr.LR}Error: The request timed out. Try again later.{TxtClr.RESET}")
+            except requests.exceptions.HTTPError as http_err:
+                print(f"{TxtClr.LR}HTTP Error: {http_err}{TxtClr.RESET}")
+            except requests.exceptions.RequestException as req_err:
+                print(f"{TxtClr.LR}Request Error: {req_err}{TxtClr.RESET}")
 
     # Menu item 3.
     def _command_delete_movie(self):
@@ -292,7 +298,8 @@ class MovieApp:
                     f"Current note for '{TxtClr.LY}{matched_movie['title']}{TxtClr.RESET}': {TxtClr.LG}{current_note}{TxtClr.RESET}"
                 )
             else:
-                print(f"{TxtClr.LG}No existing note for{TxtClr.RESET} '{TxtClr.LY}{matched_movie['title']}{TxtClr.RESET}'.")
+                print(
+                    f"{TxtClr.LG}No existing note for{TxtClr.RESET} '{TxtClr.LY}{matched_movie['title']}{TxtClr.RESET}'.")
 
             # Confirm if they want to proceed
             confirm = self._user_input.confirm_action(
