@@ -23,6 +23,7 @@ class StorageCsv(IStorage):
                 "rating": movie.get("rating", 0.0),
                 "poster": movie.get("poster", None),
                 "media_type": movie.get("media_type", None),
+                "country": movie.get("country", None),
                 "note": movie.get("note", None)
             }
             for movie in movies
