@@ -589,7 +589,7 @@ class MovieApp:
         """Creates a modern HTML card for a movie with country flags and hover notes."""
 
         type_symbol = {"movie": "🎬", "series": "📺"}.get(movie.get("media_type", ""), "🍿")
-        movie_note = movie.get("note", "").strip()
+        movie_note = (movie.get("note") or "").strip()
 
         # Process country flags
         country_names = movie.get("country", "").split(", ") if movie.get("country") else []
